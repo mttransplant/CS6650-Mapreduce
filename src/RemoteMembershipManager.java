@@ -6,7 +6,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.List;
-import java.util.UUID;
 
 /*
  * 1. establish MembershipManager for service
@@ -23,67 +22,51 @@ import java.util.UUID;
  * 12. MembershipManager removes User (replaces with new Coordinator if it was a Coordinator)
  */
 
-/**
- * must maintain a reference to the RemoteMembershipManager
- * must maintain a list of references to all RemoteCoordinators
- * if it encounters a dead RemoteCoordinator, it must leave() and then join() again
- */
-interface User extends RemoteUser {
-  /**
-   * a method that allows this User to join the service
-   * delegates responsibility to the RemoteMembershipManager
-   *
-   * @return a reference to a RemoteCoordinator
-   */
-  RemoteCoordinator join();
-
-  /**
-   * a method that allows this User to initiate the process of submitting a Job
-   * delegates responsibility to its RemoteCoordinator
-   *
-   * @param jobId a universally unique identifier for the job to be submitted
-   * @return true if the job submission process was successfully initiated, false otherwise
-   */
-  boolean submitJob(JobId jobId);
-
-  /**
-   * a method that allows this User to leave the sevice
-   * delegates responsibility to the RemoteMembershipManager
-   *
-   * @return true if the User successfully left the service, false otherwise
-   */
-  boolean leave(); // delegates to the RemoteMembershipManager
-}
-
-interface RemoteUser extends Remote {
-  /**
-   * a method to get the Job associated with the given JobId
-   * called by a JobManager
-   *
-   * @param jobId the JobId of the Job to be returned
-   * @return the Job associated with the given JobId
-   */
-  Job getJob(JobId jobId);
-
-  /**
-   *
-   *
-   * @param results
-   * @return
-   */
-  Results receiveResults(Results results); // called from the JobManager
-}
-
 /***
- * must maintain a list of references to all RemoteCoordinators
+ * an interface to represent the manager of group membership for a peer-to-peer map/reduce service
+ *
+ * must maintain a list of references to all designated RemoteCoordinators,
+ * adding and removing RemoteCoordinators as necessary
+ *
+ * is assumed to always be available at a published (universally known) IP address
  */
 public interface RemoteMembershipManager extends Remote {
   int PORT = 1099;
   String serviceHost = "DEDICATED_IP"; // TODO: establish this
 
-  Uuid generateUuid(InetAddress memberAddress); // called from a User
-  RemoteCoordinator addMember(Uuid uuid);  // called from a User, delegate to a RemoteCoordinator, assigns new User as RemoteCoordinator if appropriate
-  boolean removeMember(Uuid uuid);  // called from a User, delegate to a RemoteCoordinator, assigns a replacement RemoteCoordinator if appropriate
+  /**
+   * a method to generate a Uuid for a Peer
+   * called by a new User
+   *
+   * @param memberAddress InetAddress of the User requesting a Uuid
+   * @return a newly generated Uuid for the invoking new User
+   */
+  Uuid generateUuid(InetAddress memberAddress);
+
+  /**
+   * a method to register a new User with the network
+   * called by a new User
+   * designates this new User as a RemoteCoordinator if one is needed
+   * delegates responsibility to a RemoteCoordinator
+   *
+   * @param uuid the Uuid of the new Peer
+   * @return a reference to a RemoteCoordinator through which the invoking new User can submit jobs
+   */
+  RemoteCoordinator addMember(Uuid uuid);
+
+  /**
+   * a method to remove a User from the network
+   * called by a User
+   *
+   * if this User is a RemoteCoordinator, removes this User from its list of RemoteCoordinators
+   * and then delegates the designation of another RemoteCoordinator to a RemoteCoordinator
+   *
+   * if this User is not a RemoteCoordinator, delegates responsibility of removal to a RemoteCoordinator
+   *
+   * @param uuid the Uuid of the User to be removed
+   * @return true of the removal was successful, false otherwise
+   */
+  boolean removeMember(Uuid uuid);
 }
 
 /***
@@ -96,7 +79,7 @@ interface RemoteCoordinator extends Remote {
   List<Uuid> getActivePeers(); // called from the MembershipManager, to be used to bring new Coordinators online
   boolean setActivePeers(List<Uuid> peers); // called from the MembershipManager, to be used to bring new Coordinators online
   boolean submitJob(Job job); // called from a User, gets references (and passes Job) to RemoteJobManagers
-  List<RemoteWorker> getWorkers(Job job); // called from a JobManager, gets references to RemoteWorkers
+  List<RemoteTaskManager> getWorkers(Job job); // called from a JobManager, gets references to RemoteWorkers
 }
 
 /**
@@ -104,13 +87,13 @@ interface RemoteCoordinator extends Remote {
  * all "replica" JobManagers for a Job should proceed randomly through the job and report interim results back to its fellows (for redundancy)
  */
 interface RemoteJobManager extends Remote {
-  JobResult manageJob(Job job); // called from a Coordinator, initiates task execution, delegates back to RemoteCoordinator for RemoteWorker allocation
+  JobResult manageJob(Job job); // called from a Coordinator, initiates task execution, delegates back to RemoteCoordinator for RemoteTaskManager allocation
 }
 
 /**
  * does the Task its assigned and reports back its IntermediateResult
  */
-interface RemoteWorker extends Remote {
+interface RemoteTaskManager extends Remote {
   TaskResult performTask(Task task); // called from a JobManager
 }
 
@@ -118,25 +101,6 @@ interface Job {}  // TODO: should have Uuid of submitting User as field
 interface Task {}
 interface JobResult {}
 interface TaskResult {}
-
-class Uuid {
-  private final InetAddress inetAddress;
-  private final String uuid;
-
-  public Uuid(InetAddress inetAddress) {
-    this.inetAddress = inetAddress;
-    this.uuid = UUID.randomUUID().toString();
-  }
-
-  public InetAddress getAddress() {
-    return this.inetAddress;
-  }
-
-  @Override
-  public String toString() {
-    return this.uuid;
-  }
-}
 
 class MembershipManager implements RemoteMembershipManager {
   List<Uuid> coordinators;
@@ -158,7 +122,7 @@ class MembershipManager implements RemoteMembershipManager {
   }
 }
 
-class Peer implements User, RemoteCoordinator, RemoteJobManager, RemoteWorker {
+class Peer implements User, RemoteCoordinator, RemoteJobManager, RemoteTaskManager {
   private RemoteMembershipManager service;
   private Uuid uuid;
 
@@ -207,7 +171,7 @@ class Peer implements User, RemoteCoordinator, RemoteJobManager, RemoteWorker {
   }
 
   @Override
-  public List<RemoteWorker> getWorkers(Job job) {
+  public List<RemoteTaskManager> getWorkers(Job job) {
     return null;
   }
 
@@ -217,17 +181,17 @@ class Peer implements User, RemoteCoordinator, RemoteJobManager, RemoteWorker {
   }
 
   @Override
-  public Results receiveResults(Results results) {
+  public JobResult receiveResults(JobResult results) {
     return null;
   }
 
   @Override
-  public Results manageJob(Job job) {
+  public JobResult manageJob(Job job) {
     return null;
   }
 
   @Override
-  public IntermediateResult performTask(Task task) {
+  public TaskResult performTask(Task task) {
     return null;
   }
 }
