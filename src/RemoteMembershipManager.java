@@ -29,12 +29,48 @@ import java.util.UUID;
  * if it encounters a dead RemoteCoordinator, it must leave() and then join() again
  */
 interface User extends RemoteUser {
-  RemoteCoordinator join(); // delegates to the RemoteMembershipManager
-  boolean submitJob(Job job); // delegates to the RemoteCoordinator
+  /**
+   * a method that allows this User to join the service
+   * delegates responsibility to the RemoteMembershipManager
+   *
+   * @return a reference to a RemoteCoordinator
+   */
+  RemoteCoordinator join();
+
+  /**
+   * a method that allows this User to initiate the process of submitting a Job
+   * delegates responsibility to its RemoteCoordinator
+   *
+   * @param jobId a universally unique identifier for the job to be submitted
+   * @return true if the job submission process was successfully initiated, false otherwise
+   */
+  boolean submitJob(JobId jobId);
+
+  /**
+   * a method that allows this User to leave the sevice
+   * delegates responsibility to the RemoteMembershipManager
+   *
+   * @return true if the User successfully left the service, false otherwise
+   */
   boolean leave(); // delegates to the RemoteMembershipManager
 }
 
 interface RemoteUser extends Remote {
+  /**
+   * a method to get the Job associated with the given JobId
+   * called by a JobManager
+   *
+   * @param jobId the JobId of the Job to be returned
+   * @return the Job associated with the given JobId
+   */
+  Job getJob(JobId jobId);
+
+  /**
+   *
+   *
+   * @param results
+   * @return
+   */
   Results receiveResults(Results results); // called from the JobManager
 }
 
@@ -68,20 +104,20 @@ interface RemoteCoordinator extends Remote {
  * all "replica" JobManagers for a Job should proceed randomly through the job and report interim results back to its fellows (for redundancy)
  */
 interface RemoteJobManager extends Remote {
-  Results manageJob(Job job); // called from a Coordinator, initiates task execution, delegates back to RemoteCoordinator for RemoteWorker allocation
+  JobResult manageJob(Job job); // called from a Coordinator, initiates task execution, delegates back to RemoteCoordinator for RemoteWorker allocation
 }
 
 /**
  * does the Task its assigned and reports back its IntermediateResult
  */
 interface RemoteWorker extends Remote {
-  IntermediateResult performTask(Task task); // called from a JobManager
+  TaskResult performTask(Task task); // called from a JobManager
 }
 
 interface Job {}  // TODO: should have Uuid of submitting User as field
 interface Task {}
-interface Results {}
-interface IntermediateResult {}
+interface JobResult {}
+interface TaskResult {}
 
 class Uuid {
   private final InetAddress inetAddress;
@@ -166,7 +202,7 @@ class Peer implements User, RemoteCoordinator, RemoteJobManager, RemoteWorker {
   }
 
   @Override
-  public boolean submitJob(Job job) {
+  public boolean submitJob(JobId jobId) {
     return false;
   }
 
