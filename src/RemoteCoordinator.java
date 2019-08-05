@@ -60,4 +60,10 @@ interface RemoteCoordinator extends Remote, Identify {
    * @return a list of RemoteTaskManagers to be used by the calling JobManager
    */
   List<RemoteTaskManager> getTaskManagers();
+
+  /**
+   * a method to get the Uuid of a Peer in this Coordinator's list of active Peers
+   * @return
+   */
+  Uuid getActivePeer();
 }

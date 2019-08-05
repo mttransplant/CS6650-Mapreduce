@@ -10,6 +10,7 @@ import java.util.List;
 class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManager, RemoteJobManager, TaskManager, RemoteTaskManager {
   private RemoteMembershipManager service;
   private Uuid uuid;
+  private RemoteCoordinator coordinator;
 
   public Peer() {
     // TODO: register its various remote roles on its own registry
@@ -27,9 +28,11 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
     }
   }
 
+  /* ---------- User methods ---------- */
+
   @Override
-  public RemoteCoordinator join() {
-    return this.service.addMember(this.uuid);
+  public void join() {
+    this.coordinator = (RemoteCoordinator) getRemoteRef(this.service.addMember(this.uuid), MembershipManager.COORDINATOR);
   }
 
   @Override
@@ -39,8 +42,10 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public boolean leave() {
-    return false;
+    return this.service.removeMember(this.uuid);
   }
+
+  /* ---------- RemoteCoordinator methods ---------- */
 
   @Override
   public boolean addPeer(Uuid peer) {
@@ -64,6 +69,11 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public List<RemoteTaskManager> getTaskManagers() {
+    return null;
+  }
+
+  @Override
+  public Uuid getActivePeer() {
     return null;
   }
 

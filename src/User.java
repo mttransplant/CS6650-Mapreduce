@@ -11,10 +11,8 @@ interface User extends Communicate {
   /**
    * a method that allows this User to join the service
    * delegates responsibility to the RemoteMembershipManager
-   *
-   * @return a reference to a RemoteCoordinator
    */
-  RemoteCoordinator join();
+  void join();
 
   /**
    * a method that allows this User to initiate the process of submitting a Job
