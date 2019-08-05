@@ -109,10 +109,15 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method that designates the given Peer as a Coordinator
    */
   private void designateNewPeerAsCoordinator(Uuid uuid) throws RemoteException, NotBoundException {
-    RemoteCoordinator coordinator = (RemoteCoordinator) getRemoteRef(uuid, COORDINATOR);
+    RemoteCoordinator newCoordinator = (RemoteCoordinator) getRemoteRef(uuid, COORDINATOR);
 
     synchronized (this.coordinators) {
-      this.coordinators.add(coordinator);
+      if (!this.coordinators.isEmpty()) {
+        RemoteCoordinator coordinator = getCoordinatorRef();
+        newCoordinator.setActivePeers(coordinator.getActivePeers());
+      }
+
+      this.coordinators.add(newCoordinator);
     }
   }
 
@@ -129,12 +134,9 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
     }
 
     newCoordinator = (RemoteCoordinator) getRemoteRef(peer, COORDINATOR);
+    newCoordinator.setActivePeers(coordinator.getActivePeers());
 
     this.coordinators.add(newCoordinator);
-  }
-
-  private void removeCoordinator(Uuid oldCoordinator) {
-
   }
 
   /**

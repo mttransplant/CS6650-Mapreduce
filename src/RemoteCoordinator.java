@@ -1,5 +1,6 @@
 import java.rmi.Remote;
 import java.util.List;
+import java.util.Map;
 
 /**
  * an interface to represent a coordinator of communication amongst peers in a peer-to-peer map/reduce service
@@ -14,34 +15,38 @@ interface RemoteCoordinator extends Remote, Identify {
    * called by a MembershipManager
    *
    * @param peer the Uuid of the Peer to be added
-   * @return true if the addition was successful, false otherwise
    */
-  boolean addPeer(Uuid peer);
+  void addPeer(Uuid peer);
 
   /**
    * a method to remove a Peer from this RemoteCoordinator's list of available Peers
    * called by a MembershipManager
    *
    * @param peer the Uuid of the Peer to be removed
-   * @return true if the removal was successful, false otherwise
    */
-  boolean removePeer(Uuid peer);
+  void removePeer(Uuid peer);
 
   /**
-   * a method to designate an available Peer as a Coordinator
-   * called by a MembershipManager
+   * a method to get the Uuid of a live Peer in this Coordinator's list of active Peers
+   * remove any dead Peers encountered along the way from the service
    *
-   * @return the Uuid of the Peer to be designated as a Coordinator
+   * @return the Uuid of a live Peer
    */
-  Uuid designateCoordinator();
+  Uuid getActivePeer();
 
   /**
-   * a method to get the list of active Peers from this RemoteCoordinator
+   * a method to get the map of active Peers from this RemoteCoordinator
    * called by the MembershipManager when bringing new RemoteCoordinators online
    *
-   * @return the list of available Uuids from this RemoteCoordinator
+   * @return the map of available Uuids from this RemoteCoordinator
    */
-  List<Uuid> getActivePeers();
+  Map<String, Uuid> getActivePeers();
+
+  /**
+   * a method to set the map of active Peers for this RemoteCoordinator
+   * called by the MembershipManager when bringing new RemoteCoordinators online
+   */
+  void setActivePeers(Map<String, Uuid> activePeers);
 
   /**
    * a method to assign a JobId to a JobCoordinator
@@ -60,10 +65,4 @@ interface RemoteCoordinator extends Remote, Identify {
    * @return a list of RemoteTaskManagers to be used by the calling JobManager
    */
   List<RemoteTaskManager> getTaskManagers();
-
-  /**
-   * a method to get the Uuid of a Peer in this Coordinator's list of active Peers
-   * @return
-   */
-  Uuid getActivePeer();
 }
