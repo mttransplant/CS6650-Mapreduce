@@ -45,6 +45,22 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
     return this.service.removeMember(this.uuid);
   }
 
+  /* ---------- RemoteUser methods ---------- */
+
+  @Override
+  public Job getJob(JobId jobId) {
+    return null;
+  }
+
+  @Override
+  public void setJobResult(JobId jobId, JobResult results) {
+
+  }
+
+  /* ---------- Coordinator methods ---------- */
+
+
+
   /* ---------- RemoteCoordinator methods ---------- */
 
   @Override
@@ -68,6 +84,11 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   }
 
   @Override
+  public boolean assignJob(JobId jobId) {
+    return false;
+  }
+
+  @Override
   public List<RemoteTaskManager> getTaskManagers() {
     return null;
   }
@@ -77,31 +98,37 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
     return null;
   }
 
+  /* ---------- JobManager methods ---------- */
+
+
+
+  /* ---------- RemoteJobManager methods ---------- */
+
   @Override
   public JobResult manageJob(JobId jobId) {
     return null;
   }
+
+  /* ---------- TaskManager methods ---------- */
+
+
+
+  /* ---------- RemoteTaskManager methods ---------- */
 
   @Override
   public TaskResult performTask(Task task) {
     return null;
   }
 
-  @Override
-  public Job getJob(JobId jobId) {
-    return null;
-  }
-
-  @Override
-  public void setJobResult(JobId jobId, JobResult results) {
-
-  }
+  /* ---------- Communicate methods ---------- */
 
   @Override
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
     Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), RemoteMembershipManager.PORT);
     return registry.lookup(uuid.toString() + peerRole);
   }
+
+  /* ---------- Identify methods ---------- */
 
   @Override
   public Uuid getUuid() {
