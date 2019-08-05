@@ -44,14 +44,14 @@ interface RemoteCoordinator extends Remote, Identify {
   List<Uuid> getActivePeers();
 
   /**
-   * a method to submit a JobId to a RemoteCoordinator
+   * a method to assign a JobId to a JobCoordinator
    * called by a User
    * delegates responsibility to its corresponding Coordinator method
    *
-   * @param jobId the JobId of the Job being submitted
-   * @return true of the job submission was successful, false otherwise
+   * @param jobId the JobId of the Job being assigned
+   * @return true of the job assignment was successful, false otherwise
    */
-  boolean submitJob(JobId jobId);
+  boolean assignJob(JobId jobId);
 
   /**
    * a method to get an allocation of TaskManagers
