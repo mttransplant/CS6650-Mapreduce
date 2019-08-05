@@ -5,6 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 
 class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManager, RemoteJobManager, TaskManager, RemoteTaskManager {
@@ -13,12 +14,38 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   private RemoteCoordinator coordinator;
 
   public Peer() {
-    // TODO: register its various remote roles on its own registry
-
     try {
-      Registry registry = LocateRegistry.getRegistry(RemoteMembershipManager.serviceHost, RemoteMembershipManager.PORT);
-      this.service = (RemoteMembershipManager) registry.lookup(RemoteMembershipManager.serviceHost);
+      // connect to the MembershipService and get a Uuid
+      Registry remoteRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.serviceHost, RemoteMembershipManager.PORT);
+      this.service = (RemoteMembershipManager) remoteRegistry.lookup(RemoteMembershipManager.serviceHost);
       this.uuid = this.service.generateUuid(InetAddress.getLocalHost());
+
+      // create references to all Remote Peer interfaces
+      RemoteUser user = this;
+      RemoteCoordinator coordinator = this;
+      RemoteJobManager jobManager = this;
+      RemoteTaskManager taskManager = this;
+
+      // get a stub for each of these Remote Peer interfaces
+      RemoteUser userStub = (RemoteUser) UnicastRemoteObject.exportObject(user, RemoteMembershipManager.PORT);
+      RemoteCoordinator coordinatorStub = (RemoteCoordinator) UnicastRemoteObject.exportObject(coordinator, RemoteMembershipManager.PORT);
+      RemoteJobManager jobManagerStub = (RemoteJobManager) UnicastRemoteObject.exportObject(jobManager, RemoteMembershipManager.PORT);
+      RemoteTaskManager taskManagerStub = (RemoteTaskManager) UnicastRemoteObject.exportObject(taskManager, RemoteMembershipManager.PORT);
+
+      // create a local registry... or simply get it if it already exists
+      Registry localRegistry;
+
+      try {
+        localRegistry = LocateRegistry.createRegistry(RemoteMembershipManager.PORT);
+      } catch (RemoteException re) {
+        localRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.PORT);
+      }
+
+      // register this Peer as a RemoteUser, RemoteCoordinator, RemoteJobManager, and RemoteTaskManager
+      localRegistry.rebind(getUuid().toString() + MembershipManager.USER, userStub);
+      localRegistry.rebind(getUuid().toString() + MembershipManager.COORDINATOR, coordinatorStub);
+      localRegistry.rebind(getUuid().toString() + MembershipManager.JOB_MANAGER, jobManagerStub);
+      localRegistry.rebind(getUuid().toString() + MembershipManager.TASK_MANAGER, taskManagerStub);
     } catch (UnknownHostException uhe) {
       // TODO: handle this exception
     } catch (RemoteException re) {
