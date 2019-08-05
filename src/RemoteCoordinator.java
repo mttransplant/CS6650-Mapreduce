@@ -60,4 +60,11 @@ interface RemoteCoordinator extends Remote {
    * @return a list of RemoteTaskManagers to be used by the calling JobManager
    */
   List<RemoteTaskManager> getTaskManagers();
+
+  /**
+   * a method to return the Uuid of this RemoteCoordinator
+   *
+   * @return the Uuid of this Coordinator
+   */
+  Uuid getUuid();
 }

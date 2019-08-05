@@ -43,10 +43,10 @@ public interface RemoteMembershipManager extends Remote {
    * designates this new User as a RemoteCoordinator if one is needed
    * delegates responsibility to a RemoteCoordinator
    *
-   * @param uuid the Uuid of the new Peer
+   * @param newMember the Uuid of the new Peer
    * @return a reference to a RemoteCoordinator through which the invoking new User can submit jobs
    */
-  RemoteCoordinator addMember(Uuid uuid);
+  Uuid addMember(Uuid newMember);
 
   /**
    * a method to remove a User from the network
