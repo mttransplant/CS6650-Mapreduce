@@ -6,14 +6,19 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManager, RemoteJobManager, TaskManager, RemoteTaskManager {
   private RemoteMembershipManager service;
   private Uuid uuid;
   private RemoteCoordinator coordinator;
+  private final Map<String, Uuid> availablePeers;
 
   public Peer() {
+    this.availablePeers = new HashMap<>();
+
     try {
       // connect to the MembershipService and get a Uuid
       Registry remoteRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.serviceHost, RemoteMembershipManager.PORT);
@@ -64,6 +69,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public boolean submitJob(JobId jobId) {
+    // TODO: implement this functionality to be used from within a Coordinator
     return false;
   }
 
@@ -76,12 +82,13 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public Job getJob(JobId jobId) {
+    // TODO: implement this functionality to be used from within a JobManager
     return null;
   }
 
   @Override
   public void setJobResult(JobId jobId, JobResult results) {
-
+    // TODO: implement this functionality to be used from within a JobManager
   }
 
   /* ---------- Coordinator methods ---------- */
@@ -91,37 +98,60 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   /* ---------- RemoteCoordinator methods ---------- */
 
   @Override
-  public boolean addPeer(Uuid peer) {
-    return false;
+  public void addPeer(Uuid peer) {
+    synchronized (this.availablePeers) {
+      this.availablePeers.put(peer.toString(), peer);
+    }
   }
 
   @Override
-  public boolean removePeer(Uuid peer) {
-    return false;
+  public void removePeer(Uuid peer) {
+    synchronized (this.availablePeers) {
+      this.availablePeers.remove(peer.toString());
+    }
   }
 
   @Override
-  public Uuid designateCoordinator() {
+  public Uuid getActivePeer() {
+    // iterate through available peers, return first "live" peer, remove "dead" peers
+    for (String uuid : this.availablePeers.keySet()) {
+      try {
+        RemoteUser user = (RemoteUser) getRemoteRef(this.availablePeers.get(uuid), MembershipManager.USER);
+        return user.getUuid();
+      } catch (RemoteException | NotBoundException ex1) {
+        try {
+          this.service.removeMember(this.availablePeers.get(uuid));
+        } catch (RemoteException | NotBoundException ex2) {
+          // TODO: handle this exception
+        }
+      }
+    }
+
+    // TODO: handle situation where there are no active peers
+    // TODO: beware of peer pinging itself; is this all right?
     return null;
   }
 
   @Override
-  public List<Uuid> getActivePeers() {
-    return null;
+  public Map<String, Uuid> getActivePeers() {
+    return new HashMap<>(this.availablePeers);
+  }
+
+  @Override
+  public void setActivePeers(Map<String, Uuid> activePeers) {
+    this.availablePeers.clear();
+    this.availablePeers.putAll(activePeers);
   }
 
   @Override
   public boolean assignJob(JobId jobId) {
+    // TODO: implement this functionality to be used from within a JobManager
     return false;
   }
 
   @Override
   public List<RemoteTaskManager> getTaskManagers() {
-    return null;
-  }
-
-  @Override
-  public Uuid getActivePeer() {
+    // TODO: implement this functionality to be used from within a JobManager
     return null;
   }
 
@@ -133,6 +163,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public JobResult manageJob(JobId jobId) {
+    // TODO: implement this functionality to be used from within a Coordinator
     return null;
   }
 
@@ -144,6 +175,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public TaskResult performTask(Task task) {
+    // TODO: implement this functionality to be used from within a JobManager
     return null;
   }
 
