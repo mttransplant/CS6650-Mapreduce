@@ -1,2 +1,2 @@
-public interface Coordinator {
+public interface Coordinator extends Communicate {
 }

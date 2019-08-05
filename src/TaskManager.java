@@ -1,2 +1,2 @@
-public interface TaskManager {
+public interface TaskManager extends Communicate {
 }

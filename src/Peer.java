@@ -1,6 +1,7 @@
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -11,6 +12,8 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   private Uuid uuid;
 
   public Peer() {
+    // TODO: register its various remote roles on its own registry
+
     try {
       Registry registry = LocateRegistry.getRegistry(RemoteMembershipManager.serviceHost, RemoteMembershipManager.PORT);
       this.service = (RemoteMembershipManager) registry.lookup(RemoteMembershipManager.serviceHost);
@@ -82,5 +85,16 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   @Override
   public void setJobResult(JobId jobId, JobResult results) {
 
+  }
+
+  @Override
+  public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), RemoteMembershipManager.PORT);
+    return registry.lookup(uuid.toString() + peerRole);
+  }
+
+  @Override
+  public Uuid getUuid() {
+    return this.uuid;
   }
 }

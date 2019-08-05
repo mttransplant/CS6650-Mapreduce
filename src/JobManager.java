@@ -1,2 +1,2 @@
-public interface JobManager {
+public interface JobManager extends Communicate {
 }
