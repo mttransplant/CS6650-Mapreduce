@@ -1,15 +1,27 @@
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.rmi.NotBoundException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 /**
- * a class to represent...
+ * a class that managers membership in a peer-to-peer map/reduce service
+ * enforcing load-balancing policies for how man Coordinators are needed
  */
 class MembershipManager implements RemoteMembershipManager {
   private final List<RemoteCoordinator> coordinators;
   private final Random randomNumberGenerator;
   private int memberCount;
+  private final int PEERS_PER_COORDINATOR = 10;
+  private final static String USER = "user";
+  private final static String COORDINATOR = "coordinator";
+  private final static String JOB_MANAGER = "job_manager";
+  private final static String TASK_MANAGER = "task_manager";
 
   public MembershipManager() {
     this.coordinators = new LinkedList<>();
@@ -79,8 +91,23 @@ class MembershipManager implements RemoteMembershipManager {
     return false;
   }
 
-  private void addCoordinator(Uuid uuid) {
+  public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), RemoteMembershipManager.PORT);
+    return registry.lookup(uuid.toString() + peerRole);
+  }
 
+  private void addCoordinator(Uuid uuid) {
+    try {
+      RemoteCoordinator coordinator = (RemoteCoordinator) getRemoteRef(uuid, COORDINATOR);
+
+      synchronized (this.coordinators) {
+        this.coordinators.add(coordinator);
+      }
+    } catch (RemoteException re) {
+      // TODO: then handle this exception
+    } catch (NotBoundException nbe) {
+      // TODO: then handle this exception too
+    }
   }
 
   private void addCoordinator() {
@@ -121,3 +148,4 @@ class MembershipManager implements RemoteMembershipManager {
     this.memberCount -= 1;
   }
 }
+

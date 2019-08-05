@@ -4,7 +4,7 @@ import java.rmi.Remote;
  * an interface to enable remote communication between a user of a peer-to-peer map/reduce service
  * and the peer in the network that is managing the coordination/completion of its job submission
  */
-interface RemoteUser extends Remote {
+interface RemoteUser extends Remote, Identify {
   /**
    * a method to get the Job associated with the given JobId
    * called by a JobManager

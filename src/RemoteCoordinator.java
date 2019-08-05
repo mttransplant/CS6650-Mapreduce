@@ -8,7 +8,7 @@ import java.util.List;
  * enforces load-balancing policy (work distribution based on Peer capacity)
  * its implementation must provide a constructor that sets its list of available Peers using a pre-existing list
  */
-interface RemoteCoordinator extends Remote {
+interface RemoteCoordinator extends Remote, Identify {
   /**
    * a method to add a Peer to this RemoteCoordinator's list of available Peers
    * called by a MembershipManager
@@ -60,11 +60,4 @@ interface RemoteCoordinator extends Remote {
    * @return a list of RemoteTaskManagers to be used by the calling JobManager
    */
   List<RemoteTaskManager> getTaskManagers();
-
-  /**
-   * a method to return the Uuid of this RemoteCoordinator
-   *
-   * @return the Uuid of this Coordinator
-   */
-  Uuid getUuid();
 }
