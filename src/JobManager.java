@@ -20,5 +20,5 @@ public interface JobManager extends Communicate {
     void returnResults(JobResult jobResult);
 
     // called to get a list of available TaskManagers from the Coordinator
-    List<RemoteTaskManager> reqeustTaskManagers(int numberOfPeers);
+    List<RemoteTaskManager> requestTaskManagers(int numberOfPeers);
 }

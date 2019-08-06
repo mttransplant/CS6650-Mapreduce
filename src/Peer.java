@@ -211,7 +211,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   }
 
   @Override
-  public List<RemoteTaskManager> reqeustTaskManagers(int numberOfPeers) {
+  public List<RemoteTaskManager> requestTaskManagers(int numberOfPeers) {
     // TODO: implement this functionality to get a list of TaskManagers from RemoteCoordinator
     return null;
   }
