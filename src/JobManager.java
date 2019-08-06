@@ -13,6 +13,9 @@ import java.util.List;
 public interface JobManager extends Communicate {
   // TODO: determine what methods are needed here
 
+    // called to collect the Job from the User, given a JobId
+    Job retrieveJob(JobId jobId);
+
     // called to submit a task to a TaskManager for execution
     void submitTask(Task task);
 
