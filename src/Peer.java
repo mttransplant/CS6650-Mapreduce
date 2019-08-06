@@ -202,7 +202,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public void submitTask(Task task) {
-    // TODO: implement this functionality to send a Task to a TaskManager
+    // TODO: implement this functionality to send performTask(Task task) to a TaskManager
   }
 
   @Override
