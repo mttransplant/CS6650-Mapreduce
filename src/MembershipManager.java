@@ -21,6 +21,8 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
   final static String COORDINATOR = "coordinator";
   final static String JOB_MANAGER = "job_manager";
   final static String TASK_MANAGER = "task_manager";
+  final static long MIN_MEMORY = 2000000;
+  final static long MIN_PROCESSORS = 2;
 
   public MembershipManager() {
     this.coordinators = new LinkedList<>();
@@ -37,6 +39,13 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public Uuid addMember(Uuid newMember) throws RemoteException, NotBoundException {
+    RemoteUser newUser = (RemoteUser) getRemoteRef(newMember, MembershipManager.USER);
+
+    if (!newUser.hasMinimumResources()) {
+      // TODO: do something here to notify user its join has failed.
+      return null;
+    }
+
     incrementMemberCount();
 
     // new member can be either a Coordinator or a non-Coordinator
@@ -109,6 +118,8 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method that designates the given Peer as a Coordinator
    */
   private void designateNewPeerAsCoordinator(Uuid uuid) throws RemoteException, NotBoundException {
+    RemoteUser newUser = (RemoteUser) getRemoteRef(uuid, USER);
+    newUser.bindCoordinator();
     RemoteCoordinator newCoordinator = (RemoteCoordinator) getRemoteRef(uuid, COORDINATOR);
 
     synchronized (this.coordinators) {
@@ -127,13 +138,14 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
   private void selectPreExistingPeerToBeCoordinator() throws RemoteException, NotBoundException {
     RemoteCoordinator coordinator = getCoordinatorRef();
     Uuid peer = coordinator.getActivePeer();
-    RemoteCoordinator newCoordinator;
+    RemoteUser newUser = (RemoteUser) getRemoteRef(peer, USER);
+    newUser.bindCoordinator();
 
     for (RemoteCoordinator rc : this.coordinators) {
       rc.removePeer(peer);
     }
 
-    newCoordinator = (RemoteCoordinator) getRemoteRef(peer, COORDINATOR);
+    RemoteCoordinator newCoordinator = (RemoteCoordinator) getRemoteRef(peer, COORDINATOR);
     newCoordinator.setActivePeers(coordinator.getActivePeers());
 
     this.coordinators.add(newCoordinator);
@@ -143,7 +155,7 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method that randomly removes a Coordinator from the MembershipManager's list of Coordinators
    * and registers that Peer as available for non-Coordinator work with all remaining Coordinators
    */
-  private void removeACoordinator() {
+  private void removeACoordinator() throws RemoteException, NotBoundException {
     RemoteCoordinator oldCoordinator;
 
     synchronized (this.coordinators) {
@@ -154,6 +166,8 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
     }
 
     Uuid newPeer = oldCoordinator.getUuid();
+    RemoteUser newUser = (RemoteUser) getRemoteRef(newPeer, USER);
+    newUser.unbindCoordinator();
 
     for (RemoteCoordinator rc : this.coordinators) {
       rc.addPeer(newPeer);

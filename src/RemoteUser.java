@@ -21,4 +21,10 @@ interface RemoteUser extends Remote, Identify {
    * @param results the results associated with the given jobId
    */
   void setJobResult(JobId jobId, JobResult results); // called from the JobManager
+
+  void bindCoordinator();
+
+  void unbindCoordinator();
+
+  boolean hasMinimumResources();
 }
