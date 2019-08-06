@@ -1,4 +1,5 @@
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ interface RemoteCoordinator extends Remote, Identify {
    *
    * @param peer the Uuid of the Peer to be added
    */
-  void addPeer(Uuid peer);
+  void addPeer(Uuid peer) throws RemoteException;
 
   /**
    * a method to remove a Peer from this RemoteCoordinator's list of available Peers
@@ -24,7 +25,7 @@ interface RemoteCoordinator extends Remote, Identify {
    *
    * @param peer the Uuid of the Peer to be removed
    */
-  void removePeer(Uuid peer);
+  void removePeer(Uuid peer) throws RemoteException;
 
   /**
    * a method to get the Uuid of a live Peer in this Coordinator's list of active Peers
@@ -32,7 +33,7 @@ interface RemoteCoordinator extends Remote, Identify {
    *
    * @return the Uuid of a live Peer
    */
-  Uuid getActivePeer();
+  Uuid getActivePeer() throws RemoteException;
 
   /**
    * a method to get the map of active Peers from this RemoteCoordinator
@@ -40,13 +41,13 @@ interface RemoteCoordinator extends Remote, Identify {
    *
    * @return the map of available Uuids from this RemoteCoordinator
    */
-  Map<String, Uuid> getActivePeers();
+  Map<String, Uuid> getActivePeers() throws RemoteException;
 
   /**
    * a method to set the map of active Peers for this RemoteCoordinator
    * called by the MembershipManager when bringing new RemoteCoordinators online
    */
-  void setActivePeers(Map<String, Uuid> activePeers);
+  void setActivePeers(Map<String, Uuid> activePeers) throws RemoteException;
 
   /**
    * a method to assign a JobId to a JobCoordinator
@@ -54,9 +55,8 @@ interface RemoteCoordinator extends Remote, Identify {
    * delegates responsibility to its corresponding Coordinator method
    *
    * @param jobId the JobId of the Job being assigned
-   * @return true of the job assignment was successful, false otherwise
    */
-  boolean assignJob(JobId jobId);
+  void assignJob(JobId jobId) throws RemoteException;
 
   /**
    * a method to get an allocation of TaskManagers
@@ -64,5 +64,5 @@ interface RemoteCoordinator extends Remote, Identify {
    *
    * @return a list of RemoteTaskManagers to be used by the calling JobManager
    */
-  List<RemoteTaskManager> getTaskManagers();
+  List<RemoteTaskManager> getTaskManagers() throws RemoteException;
 }

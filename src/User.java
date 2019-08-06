@@ -19,15 +19,12 @@ interface User extends Communicate {
    * delegates responsibility to its RemoteCoordinator
    *
    * @param jobId a universally unique identifier for the job to be submitted
-   * @return true if the job submission process was successfully initiated, false otherwise
    */
-  boolean submitJob(JobId jobId);
+  void submitJob(JobId jobId);
 
   /**
    * a method that allows this User to leave the sevice
    * delegates responsibility to the RemoteMembershipManager
-   *
-   * @return true if the User successfully left the service, false otherwise
    */
-  boolean leave();
+  void leave();
 }

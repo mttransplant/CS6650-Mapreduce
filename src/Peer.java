@@ -15,6 +15,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   private Uuid uuid;
   private RemoteCoordinator coordinator;
   private final Map<String, Uuid> availablePeers;
+  private List<Job> jobs;
 
   public Peer() {
     this.availablePeers = new HashMap<>();
@@ -27,13 +28,11 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
       // create references to all Remote Peer interfaces
       RemoteUser user = this;
-      RemoteCoordinator coordinator = this;
       RemoteJobManager jobManager = this;
       RemoteTaskManager taskManager = this;
 
       // get a stub for each of these Remote Peer interfaces
       RemoteUser userStub = (RemoteUser) UnicastRemoteObject.exportObject(user, RemoteMembershipManager.PORT);
-      RemoteCoordinator coordinatorStub = (RemoteCoordinator) UnicastRemoteObject.exportObject(coordinator, RemoteMembershipManager.PORT);
       RemoteJobManager jobManagerStub = (RemoteJobManager) UnicastRemoteObject.exportObject(jobManager, RemoteMembershipManager.PORT);
       RemoteTaskManager taskManagerStub = (RemoteTaskManager) UnicastRemoteObject.exportObject(taskManager, RemoteMembershipManager.PORT);
 
@@ -48,7 +47,6 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
       // register this Peer as a RemoteUser, RemoteCoordinator, RemoteJobManager, and RemoteTaskManager
       localRegistry.rebind(getUuid().toString() + MembershipManager.USER, userStub);
-      localRegistry.rebind(getUuid().toString() + MembershipManager.COORDINATOR, coordinatorStub);
       localRegistry.rebind(getUuid().toString() + MembershipManager.JOB_MANAGER, jobManagerStub);
       localRegistry.rebind(getUuid().toString() + MembershipManager.TASK_MANAGER, taskManagerStub);
     } catch (UnknownHostException uhe) {
@@ -64,18 +62,23 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public void join() {
-    this.coordinator = (RemoteCoordinator) getRemoteRef(this.service.addMember(this.uuid), MembershipManager.COORDINATOR);
+    Uuid coord = this.service.addMember(this.uuid);
+    this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
   }
 
   @Override
-  public boolean submitJob(JobId jobId) {
-    // TODO: implement this functionality to be used from within a Coordinator
-    return false;
+  public void submitJob(JobId jobId) {
+    try {
+      this.coordinator.assignJob(jobId);
+    } catch (RemoteException re) {
+      // get a new coordinator from the MembershipManager
+      // ping coordinator (as user)... if dead, forcibly remove (perform this "service" on behalf of the network
+    }
   }
 
   @Override
-  public boolean leave() {
-    return this.service.removeMember(this.uuid);
+  public void leave() {
+    this.service.removeMember(this.uuid);
   }
 
   /* ---------- RemoteUser methods ---------- */
@@ -89,6 +92,47 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   @Override
   public void setJobResult(JobId jobId, JobResult results) {
     // TODO: implement this functionality to be used from within a JobManager
+  }
+
+  @Override
+  public void bindCoordinator() {
+    try {
+      RemoteCoordinator coordinatorStub = (RemoteCoordinator) UnicastRemoteObject.exportObject(coordinator, RemoteMembershipManager.PORT);
+      Registry localRegistry;
+
+      try {
+        localRegistry = LocateRegistry.createRegistry(RemoteMembershipManager.PORT);
+      } catch (RemoteException re) {
+        localRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.PORT);
+      }
+
+      localRegistry.rebind(getUuid().toString() + MembershipManager.COORDINATOR, coordinatorStub);
+    } catch (RemoteException ex) {
+      // TODO: handle this exception
+    }
+  }
+
+  @Override
+  public void unbindCoordinator() {
+    try {
+      Registry localRegistry;
+
+      try {
+        localRegistry = LocateRegistry.createRegistry(RemoteMembershipManager.PORT);
+      } catch (RemoteException re) {
+        localRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.PORT);
+      }
+
+      localRegistry.unbind(getUuid().toString() + MembershipManager.COORDINATOR);
+    } catch (RemoteException | NotBoundException ex) {
+      // TODO: handle this exception
+    }
+  }
+
+  @Override
+  public boolean hasMinimumResources() {
+    Runtime runtime = Runtime.getRuntime();
+    return runtime.totalMemory() > MembershipManager.MIN_MEMORY && runtime.availableProcessors() > MembershipManager.MIN_PROCESSORS;
   }
 
   /* ---------- Coordinator methods ---------- */
@@ -144,9 +188,8 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   }
 
   @Override
-  public boolean assignJob(JobId jobId) {
+  public void assignJob(JobId jobId) {
     // TODO: implement this functionality to be used from within a JobManager
-    return false;
   }
 
   @Override
