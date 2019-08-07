@@ -6,6 +6,22 @@
  */
 
 public interface JobResult {
+    String SUCCESS = "success";
+    String ERROR = "error";
+    /**
+     * a method to retrieve the user's Uuid so the results
+     * can be returned
+     * @return Uuid of the submitting user
+     */
+    Uuid getUserUuid();
+
+    /**
+     * a method to retrieve the JobId of the originating job
+     * that produced the current JobResults
+     * called by JobManager when communicating results back to User
+     * @return JobId created for the job
+     */
+    JobId getJobId();
 
     /**
      * a method to retrieve the final status of the job. this is used to inform

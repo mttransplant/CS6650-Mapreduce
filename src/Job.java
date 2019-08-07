@@ -18,6 +18,13 @@ public interface Job {
     Uuid getUuid();
 
     /**
+     * a method to retrieve the JobId of the job.
+     * called by JobManager when returning the JobResults
+     * @return JobId of the completed Job
+     */
+    JobId getJobId();
+
+    /**
      * a method to retrieve the dataset object that the user provided, which will
      * be processed by the passed Mapper and Reducer functions
      * called by the JobManager assigned to the job
