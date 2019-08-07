@@ -1,5 +1,3 @@
-import java.io.File;
-
 /**
  * an interface to represent the results that will be passed from a JobManager back to
  * the peer that submitted the original Job
@@ -8,6 +6,22 @@ import java.io.File;
  */
 
 public interface JobResult {
+    String SUCCESS = "success";
+    String ERROR = "error";
+    /**
+     * a method to retrieve the user's Uuid so the results
+     * can be returned
+     * @return Uuid of the submitting user
+     */
+    Uuid getUserUuid();
+
+    /**
+     * a method to retrieve the JobId of the originating job
+     * that produced the current JobResults
+     * called by JobManager when communicating results back to User
+     * @return JobId created for the job
+     */
+    JobId getJobId();
 
     /**
      * a method to retrieve the final status of the job. this is used to inform
@@ -19,7 +33,7 @@ public interface JobResult {
      *
      * @return a String
      */
-    String status();
+    String getStatus();
 
     /**
      * a method to retrieve the results object that the JobManager returned
@@ -28,5 +42,5 @@ public interface JobResult {
      * @return the File of the processed results
      * TODO: need to decide if file will be null if there were errors
      */
-    File getResults();
+    DataSet getResults();
 }

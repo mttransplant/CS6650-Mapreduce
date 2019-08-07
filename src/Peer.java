@@ -207,6 +207,12 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   @Override
   public Job retrieveJob(JobId jobId) {
     // TODO: implement this functionality to access getJob(JobId jobid) on the RemoteUser
+    try {
+      RemoteUser user = (RemoteUser) getRemoteRef(jobId.getSubmitter(),MembershipManager.USER);
+      return user.getJob(jobId);
+    } catch (RemoteException | NotBoundException e) {
+      // TODO: handle this exception
+    }
     return null;
   }
 
@@ -218,6 +224,12 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   @Override
   public void returnResults(JobResult jobResult) {
     // TODO: implement this functionality to return the JobResult to a RemoteUser
+    try {
+      RemoteUser user = (RemoteUser) getRemoteRef(jobResult.getUserUuid(), MembershipManager.USER);
+      user.setJobResult(jobResult.getJobId(), jobResult);
+    } catch (RemoteException | NotBoundException e) {
+      // TODO: handle this exception
+    }
   }
 
   @Override
