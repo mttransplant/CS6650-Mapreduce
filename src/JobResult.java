@@ -17,7 +17,7 @@ public interface JobResult {
      *
      * @return a String
      */
-    String status();
+    String getStatus();
 
     /**
      * a method to retrieve the results object that the JobManager returned

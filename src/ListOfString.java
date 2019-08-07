@@ -3,7 +3,8 @@ import java.util.ArrayList;
 
 public class ListOfString implements Data {
     private DataSet dataSet = (DataSet) new ArrayList<String>();
-    // TODO: Ask the team: Is ArrayList okay, or should be something else?
+    // TODO: Ask the team: Is this structure okay, or should be something else?
+
 
     DataSet getDataset() {
         return dataSet;
