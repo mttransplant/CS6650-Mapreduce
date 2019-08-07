@@ -1,11 +1,14 @@
 // should have the Uuid of the submitting User as a field
 
+import MapReduce.Mapper;
+import MapReduce.Reducer;
+
 import java.io.File;
 
 /**
  * an interface to represent the job that will be passed from a peer to a JobManager
  *
- * must capture a Uuid, a dataset, a Mapper, and a Reducer
+ * must capture a Uuid, a dataset, a MapReduce.Mapper, and a MapReduce.Reducer
  */
 
 public interface Job {
@@ -21,7 +24,7 @@ public interface Job {
 
     /**
      * a method to retrieve the dataset object that the user provided, which will
-     * be processed by the passed Mapper and Reducer functions
+     * be processed by the passed MapReduce.Mapper and MapReduce.Reducer functions
      * called by the JobManager assigned to the job
      *
      * @return the File of data to be processed
@@ -29,26 +32,26 @@ public interface Job {
     File getDataset();
 
     /**
-     * a method to retrieve the Mapper function object that the user provided
-     * called by the JobManager so it can repackage the Mapper in the Task
-     * The Mapper is a user defined object that contains the desired mapping
+     * a method to retrieve the MapReduce.Mapper function object that the user provided
+     * called by the JobManager so it can repackage the MapReduce.Mapper in the Task
+     * The MapReduce.Mapper is a user defined object that contains the desired mapping
      * functionality
      *
-     * @return the Mapper function object
+     * @return the MapReduce.Mapper function object
      */
     Mapper getMapper();
     // TODO: Connect with Nay on naming and implementation details
 
     /**
-     * a method to retrieve the Reducer function object that the user provided
-     * called by the JobManager so it can repackage the Reducer in the Task
+     * a method to retrieve the MapReduce.Reducer function object that the user provided
+     * called by the JobManager so it can repackage the MapReduce.Reducer in the Task
      * may also be called by the JobManager to reduce the sets returned by each
      * TaskManager
      *
-     * The Reducer is a user defined object that contains the desired reduction
+     * The MapReduce.Reducer is a user defined object that contains the desired reduction
      * functionality
      *
-     * @return the Mapper function object
+     * @return the MapReduce.Mapper function object
      */
     Reducer getReducer();
     // TODO: Connect with nay on naming and implementation details

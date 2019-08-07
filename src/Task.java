@@ -1,3 +1,6 @@
+import MapReduce.Mapper;
+import MapReduce.Reducer;
+
 import java.io.File;
 
 /**
@@ -37,7 +40,7 @@ public interface Task {
     /**
      * a method to retrieve the dataset object that the JobManager provided, which
      * is a subset of the dataset that the Peer passed. Will
-     * be processed by the passed Mapper and Reducer functions
+     * be processed by the passed MapReduce.Mapper and MapReduce.Reducer functions
      * called by the TaskManager assigned to the Task
      *
      * @return the File of data to be processed
@@ -45,24 +48,24 @@ public interface Task {
     File getDataset();
 
     /**
-     * a method to retrieve the Mapper function object that the user provided
+     * a method to retrieve the MapReduce.Mapper function object that the user provided
      * called by the TaskManager assigned to a subset of the Job
-     * The Mapper is a user defined object that contains the desired mapping
+     * The MapReduce.Mapper is a user defined object that contains the desired mapping
      * functionality
      *
-     * @return the Mapper function object
+     * @return the MapReduce.Mapper function object
      */
     Mapper getMapper();
     // TODO: Connect with Nay on naming and implementation details
 
     /**
-     * a method to retrieve the Reducer function object that the user provided
+     * a method to retrieve the MapReduce.Reducer function object that the user provided
      * called by the TaskManager assigned to a subset of the Job
      *
-     * The Reducer is a user defined object that contains the desired reduction
+     * The MapReduce.Reducer is a user defined object that contains the desired reduction
      * functionality
      *
-     * @return the Mapper function object
+     * @return the MapReduce.Mapper function object
      */
     Reducer getReducer();
     // TODO: Connect with nay on naming and implementation details

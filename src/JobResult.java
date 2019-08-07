@@ -4,7 +4,7 @@ import java.io.File;
  * an interface to represent the results that will be passed from a JobManager back to
  * the peer that submitted the original Job
  *
- * must capture a Uuid, a dataset, a Mapper, and a Reducer
+ * must capture a Uuid, a dataset, a MapReduce.Mapper, and a MapReduce.Reducer
  */
 
 public interface JobResult {
