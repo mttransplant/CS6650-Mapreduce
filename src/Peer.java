@@ -193,12 +193,12 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public void assignJob(JobId jobId) {
-    // TODO: implement this functionality to be used from within a JobManager (interface says User?)
+    // TODO: implement this functionality to be called by a User
   }
 
   @Override
   public List<RemoteTaskManager> getTaskManagers() {
-    // TODO: implement this functionality to be used from within a JobManager
+    // TODO: implement this functionality to be called by a JobManager
     return null;
   }
 
@@ -231,7 +231,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public JobResult manageJob(JobId jobId) {
-    // TODO: implement this functionality to be used from within a Coordinator
+    // TODO: implement this functionality to be called by a Coordinator
     return null;
   }
 
