@@ -1,5 +1,3 @@
-import java.io.File;
-
 /**
  * an interface to represent the results that will be passed from a JobManager back to
  * the peer that submitted the original Job
@@ -28,5 +26,5 @@ public interface JobResult {
      * @return the File of the processed results
      * TODO: need to decide if file will be null if there were errors
      */
-    File getResults();
+    DataSet getResults();
 }

@@ -1,7 +1,5 @@
 // should have the Uuid of the submitting User as a field
 
-import java.io.File;
-
 /**
  * an interface to represent the job that will be passed from a peer to a JobManager
  *
@@ -26,7 +24,7 @@ public interface Job {
      *
      * @return the File of data to be processed
      */
-    File getDataset();
+    DataSet getDataset();
 
     /**
      * a method to retrieve the Mapper function object that the user provided

@@ -2,11 +2,11 @@ import java.io.File;
 
 public class JobImpl implements Job {
     private Uuid userUuid;
-    private File dataSet;
+    private DataSet dataSet;
     private Mapper mapper;
     private Reducer reducer;
 
-    public void Job(Uuid userUuid, File dataSet, Mapper mapper, Reducer reducer) {
+    public void Job(Uuid userUuid, DataSet dataSet, Mapper mapper, Reducer reducer) {
         this.userUuid = userUuid;
         this.dataSet = dataSet;
         this.mapper = mapper;
@@ -18,7 +18,7 @@ public class JobImpl implements Job {
     }
 
 
-    public File getDataset() {
+    public DataSet getDataset() {
         return dataSet;
     }
 
