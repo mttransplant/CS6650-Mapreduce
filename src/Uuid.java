@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.UUID;
 
-class Uuid {
+public class Uuid implements Serializable {
   private final InetAddress inetAddress;
   private final String uuid;
 

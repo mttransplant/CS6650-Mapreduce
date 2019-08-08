@@ -7,7 +7,7 @@
  * if it encounters a dead RemoteCoordinator when attempting to submit a job,
  * it must leave() and then join() again before retrying job submission
  */
-interface User extends Communicate {
+public interface User extends Communicate {
   /**
    * a method that allows this User to join the service
    * delegates responsibility to the RemoteMembershipManager

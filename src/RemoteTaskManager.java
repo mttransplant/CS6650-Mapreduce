@@ -1,8 +1,9 @@
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 /**
  * does the Task its assigned and reports back its IntermediateResult
  */
-interface RemoteTaskManager extends Remote, Identify {
-  TaskResult performTask(Task task); // called from a JobManager
+public interface RemoteTaskManager extends Remote, Identify {
+  TaskResult performTask(Task task) throws RemoteException; // called from a JobManager
 }
