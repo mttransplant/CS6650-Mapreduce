@@ -35,11 +35,8 @@ public class JobImpl implements Job {
         return mapper;
     }
 
-
-
     public Reducer getReducer() {
         // TODO: Connect with nay on naming and implementation details
         return reducer;
     }
-
 }

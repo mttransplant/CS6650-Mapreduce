@@ -1,3 +1,5 @@
+import java.io.Serializable;
+
 public class JobResultImpl implements JobResult {
     private Job job;
     private String status;

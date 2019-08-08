@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * an interface to represent the results that will be passed from a TaskManager back to
@@ -6,7 +7,7 @@ import java.io.File;
  *
  */
 
-public interface TaskResult {
+public interface TaskResult extends Serializable {
 
 
     /**

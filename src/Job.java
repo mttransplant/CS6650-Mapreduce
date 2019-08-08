@@ -2,6 +2,8 @@
 
 import MapReduce.Mapper;
 import MapReduce.Reducer;
+import java.io.Serializable;
+
 
 /**
  * an interface to represent the job that will be passed from a peer to a JobManager
@@ -9,7 +11,7 @@ import MapReduce.Reducer;
  * must capture a Uuid, a dataset, a MapReduce.Mapper, and a MapReduce.Reducer
  */
 
-public interface Job {
+public interface Job extends Serializable {
 
     /**
      * a method to retrieve the Uuid of the peer that submitted the job

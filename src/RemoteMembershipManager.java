@@ -12,9 +12,6 @@ import java.rmi.RemoteException;
  * is assumed to always be available at a published (universally known) IP address
  */
 public interface RemoteMembershipManager extends Remote {
-  int PORT = 1099;
-  String serviceHost = "DEDICATED_IP"; // TODO: establish this
-
   /**
    * a method to generate a Uuid for a Peer
    * called by a new User
@@ -22,7 +19,7 @@ public interface RemoteMembershipManager extends Remote {
    * @param memberAddress InetAddress of the User requesting a Uuid
    * @return a newly generated Uuid for the invoking new User
    */
-  Uuid generateUuid(InetAddress memberAddress);
+  Uuid generateUuid(InetAddress memberAddress) throws RemoteException;
 
   /**
    * a method to register a new User with the network
