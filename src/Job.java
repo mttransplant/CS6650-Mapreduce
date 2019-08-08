@@ -23,13 +23,20 @@ public interface Job {
     Uuid getUuid();
 
     /**
+     * a method to retrieve the JobId of the job.
+     * called by JobManager when returning the JobResults
+     * @return JobId of the completed Job
+     */
+    JobId getJobId();
+
+    /**
      * a method to retrieve the dataset object that the user provided, which will
      * be processed by the passed MapReduce.Mapper and MapReduce.Reducer functions
      * called by the JobManager assigned to the job
      *
      * @return the File of data to be processed
      */
-    File getDataset();
+    DataSet getDataset();
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided

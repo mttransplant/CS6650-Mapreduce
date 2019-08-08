@@ -7,11 +7,11 @@ public class TaskImpl implements Task {
     private TaskId taskId;
     private Uuid userUuid;
     private Uuid jobManagerUuid;
-    private File dataSet;
+    private DataSet dataSet;
     private Mapper mapper;
     private Reducer reducer;
 
-    public void Task(TaskId taskId, Uuid userUuid, Uuid jobManagerUuid, File dataSet, Mapper mapper, Reducer reducer) {
+    public void Task(TaskId taskId, Uuid userUuid, Uuid jobManagerUuid, DataSet dataSet, Mapper mapper, Reducer reducer) {
         this.taskId = taskId;
         this.userUuid = userUuid;
         this.jobManagerUuid = jobManagerUuid;
@@ -32,7 +32,7 @@ public class TaskImpl implements Task {
         return jobManagerUuid;
     }
 
-    public File getDataset() {
+    public DataSet getDataset() {
         return dataSet;
     }
 
