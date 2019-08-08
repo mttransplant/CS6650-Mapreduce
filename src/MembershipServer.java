@@ -7,13 +7,13 @@ public class MembershipServer {
   public static void main(String[] args) {
     try {
       RemoteMembershipManager manager = new MembershipManager();
-      RemoteMembershipManager managerStub = (RemoteMembershipManager) UnicastRemoteObject.exportObject(manager, MembershipManager.MANAGER_PORT);
+      RemoteMembershipManager managerStub = (RemoteMembershipManager) UnicastRemoteObject.exportObject(manager, MembershipManager.PORT);
       Registry registry;
 
       try {
-        registry = LocateRegistry.createRegistry(MembershipManager.MANAGER_PORT);
+        registry = LocateRegistry.createRegistry(MembershipManager.PORT);
       } catch (RemoteException re) {
-        registry = LocateRegistry.getRegistry(MembershipManager.MANAGER_PORT);
+        registry = LocateRegistry.getRegistry(MembershipManager.PORT);
       }
 
       registry.rebind(MembershipManager.SERVICE_NAME, managerStub);
