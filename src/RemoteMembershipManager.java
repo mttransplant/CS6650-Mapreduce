@@ -19,7 +19,7 @@ public interface RemoteMembershipManager extends Remote {
    * @param memberAddress InetAddress of the User requesting a Uuid
    * @return a newly generated Uuid for the invoking new User
    */
-  Uuid generateUuid(InetAddress memberAddress);
+  Uuid generateUuid(InetAddress memberAddress) throws RemoteException, NotBoundException;
 
   /**
    * a method to register a new User with the network
