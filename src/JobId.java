@@ -13,4 +13,5 @@ class JobId {
 
   Uuid getSubmitter() { return this.submitter; }
   String getJobId() { return this.jobId; }
+  long getJobSize() { return this.jobSize; }
 }

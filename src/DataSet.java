@@ -5,5 +5,4 @@
 
 public interface DataSet {
     DataSet getDataset();
-    void setDataSet(DataSet dataSet);
 }
