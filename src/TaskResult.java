@@ -45,5 +45,5 @@ public interface TaskResult {
      * @return the File of the processed results
      * TODO: need to decide if file will be null if there were errors
      */
-    File getResults();
+    ResultData getResults();
 }

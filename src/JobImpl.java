@@ -1,19 +1,17 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
-import java.io.File;
-
 public class JobImpl implements Job {
     private Uuid userUuid;
     private JobId jobId;
-    private DataSet dataSet;
+    private JobData jobData;
     private Mapper mapper;
     private Reducer reducer;
 
-    public void Job(Uuid userUuid, JobId jobId, DataSet dataSet, Mapper mapper, Reducer reducer) {
+    public void Job(Uuid userUuid, JobId jobId, JobData jobData, Mapper mapper, Reducer reducer) {
         this.userUuid = userUuid;
         this.jobId = jobId;
-        this.dataSet = dataSet;
+        this.jobData = jobData;
         this.mapper = mapper;
         this.reducer = reducer;
     }
@@ -28,8 +26,8 @@ public class JobImpl implements Job {
         return jobId;
     }
 
-    public DataSet getDataset() {
-        return dataSet;
+    public JobData getDataset() {
+        return jobData;
     }
 
     public Mapper getMapper() {

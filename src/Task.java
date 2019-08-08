@@ -45,7 +45,7 @@ public interface Task {
      *
      * @return the File of data to be processed
      */
-    File getDataset();
+    JobData getDataset();
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided

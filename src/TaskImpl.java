@@ -1,21 +1,19 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
-import java.io.File;
-
 public class TaskImpl implements Task {
     private TaskId taskId;
     private Uuid userUuid;
     private Uuid jobManagerUuid;
-    private DataSet dataSet;
+    private JobData jobData;
     private Mapper mapper;
     private Reducer reducer;
 
-    public void Task(TaskId taskId, Uuid userUuid, Uuid jobManagerUuid, DataSet dataSet, Mapper mapper, Reducer reducer) {
+    public void Task(TaskId taskId, Uuid userUuid, Uuid jobManagerUuid, JobData jobData, Mapper mapper, Reducer reducer) {
         this.taskId = taskId;
         this.userUuid = userUuid;
         this.jobManagerUuid = jobManagerUuid;
-        this.dataSet = dataSet;
+        this.jobData = jobData;
         this.mapper = mapper;
         this.reducer = reducer;
     }
@@ -32,8 +30,8 @@ public class TaskImpl implements Task {
         return jobManagerUuid;
     }
 
-    public DataSet getDataset() {
-        return dataSet;
+    public JobData getDataset() {
+        return jobData;
     }
 
     public Mapper getMapper() {

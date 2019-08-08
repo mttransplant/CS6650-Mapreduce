@@ -3,8 +3,6 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
-import java.io.File;
-
 /**
  * an interface to represent the job that will be passed from a peer to a JobManager
  *
@@ -36,7 +34,7 @@ public interface Job {
      *
      * @return the File of data to be processed
      */
-    DataSet getDataset();
+    JobData getDataset();
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided
