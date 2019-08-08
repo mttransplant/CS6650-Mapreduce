@@ -1,4 +1,5 @@
-import java.io.File;
+import MapReduce.Mapper;
+import MapReduce.Reducer;
 
 public class JobImpl implements Job {
     private Uuid userUuid;
@@ -14,8 +15,6 @@ public class JobImpl implements Job {
         this.mapper = mapper;
         this.reducer = reducer;
     }
-
-    // TODO: Add method and interface to split the passed data into an array of data
 
     public Uuid getUuid() {
         return userUuid;
@@ -34,11 +33,8 @@ public class JobImpl implements Job {
         return mapper;
     }
 
-
-
     public Reducer getReducer() {
         // TODO: Connect with nay on naming and implementation details
         return reducer;
     }
-
 }

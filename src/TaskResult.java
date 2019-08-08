@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -36,7 +37,7 @@ public interface TaskResult extends Serializable {
      *
      * @return a String
      */
-    String getStatus();
+    String status();
 
     /**
      * a method to retrieve the results object that the JobManager returned
@@ -45,5 +46,5 @@ public interface TaskResult extends Serializable {
      * @return the File of the processed results
      * TODO: need to decide if file will be null if there were errors
      */
-    ResultData getResults();
+    File getResults();
 }
