@@ -12,9 +12,9 @@ import java.util.Random;
  * a class that managers membership in a peer-to-peer map/reduce service
  * enforcing load-balancing policies for how man Coordinators are needed
  */
-class MembershipManager implements RemoteMembershipManager, Communicate {
+public class MembershipManager implements RemoteMembershipManager, Communicate {
   public static final int PORT = 1099;
-  public static final String SERVICE_HOST = "DEDICATED_IP"; // TODO: establish this
+  public static final String SERVICE_HOST = "127.0.0.1"; // TODO: establish this
   public static final String SERVICE_NAME = "MEMBERSHIP_MANAGER";
 
   private final List<RemoteCoordinator> coordinators;
@@ -183,7 +183,7 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
    *
    * @return the Uuid of a Coordinator
    */
-  private Uuid getCoordinatorUuid() {
+  private Uuid getCoordinatorUuid() throws RemoteException{
     return getCoordinatorRef().getUuid();
   }
 
@@ -216,11 +216,13 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
    * @param uuid the Uuid of the Peer whose Coordinator index will be gotten, if it exists
    * @return the index of the given Peer in the list of Coordinators or -1 if the given Peer is not a Coordinator
    */
-  private synchronized int getIndexOfCoordinator(Uuid uuid) {
+  private synchronized int getIndexOfCoordinator(Uuid uuid) throws RemoteException {
     int index = -1;
 
     for (int i = 0; i < this.coordinators.size(); i++) {
-      if (this.coordinators.get(i).getUuid().toString().equals(uuid.toString())) {
+      String coordUuid = this.coordinators.get(i).getUuid().toString();
+
+      if (coordUuid.equals(uuid.toString())) {
         index = i;
         break;
       }

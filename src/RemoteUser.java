@@ -23,7 +23,7 @@ public interface RemoteUser extends Remote, Identify {
    */
   void setJobResult(JobId jobId, JobResult results) throws RemoteException;
 
-  void setAsCoordinator() throws RemoteException;
+  void bindCoordinator() throws RemoteException;
 
   void unbindCoordinator() throws RemoteException;
 
