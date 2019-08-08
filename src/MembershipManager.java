@@ -8,16 +8,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-// TODO: don't crash if Peer calls leave() before join()
-
 /**
  * a class that managers membership in a peer-to-peer map/reduce service
  * enforcing load-balancing policies for how man Coordinators are needed
  */
-public class MembershipManager implements RemoteMembershipManager, Communicate {
-  public static final int MANAGER_PORT = 2099;
-  public static final int CLIENT_PORT = 1099;
-  public static final String SERVICE_HOST = "127.0.0.1"; // TODO: establish this
+class MembershipManager implements RemoteMembershipManager, Communicate {
+  public static final int PORT = 1099;
+  public static final String SERVICE_HOST = "DEDICATED_IP"; // TODO: establish this
   public static final String SERVICE_NAME = "MEMBERSHIP_MANAGER";
 
   private final List<RemoteCoordinator> coordinators;
@@ -46,7 +43,6 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public Uuid addMember(Uuid newMember) throws RemoteException, NotBoundException {
-    System.out.println("A member is being added.");
     RemoteUser newUser = (RemoteUser) getRemoteRef(newMember, MembershipManager.USER);
 
     if (!newUser.hasMinimumResources()) {
@@ -70,8 +66,6 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public void removeMember(Uuid oldMember) throws RemoteException, NotBoundException {
-    System.out.println("A member is being removed.");
-
     decrementMemberCount();
     int index;
 
@@ -98,10 +92,8 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
-    System.out.println("Getting remote reference.");
-
-    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.CLIENT_PORT);
-    return registry.lookup(uuid.toString());
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.PORT);
+    return registry.lookup(uuid.toString() + peerRole);
   }
 
   /* ---------- private helper methods --------- */
@@ -113,10 +105,6 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * @return true if load-balancing policy dictates, false otherwise
    */
   private boolean newCoordinatorRequired() {
-    if (memberCount < 1) {
-      return false;
-    }
-
     return this.coordinators.isEmpty() || this.coordinators.size() <= this.memberCount/PEERS_PER_COORDINATOR;
   }
 
@@ -127,10 +115,6 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * @return true if load-balancing policy dictates, false otherwise
    */
   private boolean tooManyCoordinators() {
-    if (memberCount < 1) {
-      return false;
-    }
-
     return !this.coordinators.isEmpty() && this.coordinators.size() > this.memberCount/PEERS_PER_COORDINATOR;
   }
 
@@ -138,10 +122,8 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method that designates the given Peer as a Coordinator
    */
   private void designateNewPeerAsCoordinator(Uuid uuid) throws RemoteException, NotBoundException {
-    System.out.println("A new Peer is being designated as a Coordinator.");
-
     RemoteUser newUser = (RemoteUser) getRemoteRef(uuid, USER);
-    newUser.setAsCoordinator();
+    newUser.bindCoordinator();
     RemoteCoordinator newCoordinator = (RemoteCoordinator) getRemoteRef(uuid, COORDINATOR);
 
     synchronized (this.coordinators) {
@@ -158,12 +140,10 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method to designate a pre-existing non-Coordinator Peer as a new Coordinator
    */
   private void selectPreExistingPeerToBeCoordinator() throws RemoteException, NotBoundException {
-    System.out.println("An existing Peer is being selected to be a Coordinator.");
-
     RemoteCoordinator coordinator = getCoordinatorRef();
     Uuid peer = coordinator.getActivePeer();
     RemoteUser newUser = (RemoteUser) getRemoteRef(peer, USER);
-    newUser.setAsCoordinator();
+    newUser.bindCoordinator();
 
     for (RemoteCoordinator rc : this.coordinators) {
       rc.removePeer(peer);
@@ -180,8 +160,6 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * and registers that Peer as available for non-Coordinator work with all remaining Coordinators
    */
   private void removeACoordinator() throws RemoteException, NotBoundException {
-    System.out.println("Removing a Coordinator");
-
     RemoteCoordinator oldCoordinator;
 
     synchronized (this.coordinators) {
@@ -205,7 +183,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    *
    * @return the Uuid of a Coordinator
    */
-  private Uuid getCoordinatorUuid() throws RemoteException{
+  private Uuid getCoordinatorUuid() {
     return getCoordinatorRef().getUuid();
   }
 
@@ -215,8 +193,6 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * @return a reference to a RemoteCoordinator
    */
   private RemoteCoordinator getCoordinatorRef() {
-    System.out.println("Getting new Coordinator reference.");
-
     int numCoordinators;
     int index;
     RemoteCoordinator coordinator;
@@ -240,13 +216,11 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * @param uuid the Uuid of the Peer whose Coordinator index will be gotten, if it exists
    * @return the index of the given Peer in the list of Coordinators or -1 if the given Peer is not a Coordinator
    */
-  private synchronized int getIndexOfCoordinator(Uuid uuid) throws RemoteException {
+  private synchronized int getIndexOfCoordinator(Uuid uuid) {
     int index = -1;
 
     for (int i = 0; i < this.coordinators.size(); i++) {
-      String coordUuid = this.coordinators.get(i).getUuid().toString();
-
-      if (coordUuid.equals(uuid.toString())) {
+      if (this.coordinators.get(i).getUuid().toString().equals(uuid.toString())) {
         index = i;
         break;
       }
