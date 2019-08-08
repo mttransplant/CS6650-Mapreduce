@@ -3,16 +3,16 @@ import java.io.Serializable;
 public class JobResultImpl implements JobResult {
     private Job job;
     private String status;
-    private ResultData resultData;
+    private JobData jobData;
 
-    public JobResultImpl(Job job, String status, ResultData resultData) {
+    public void JobResult(Job job, String status, JobData jobData) {
         this.job = job;
         this.status = status;
-        this.resultData = resultData;
+        this.jobData = jobData;
     }
 
     public Uuid getUserUuid() {
-        return job.getUserUuid();
+        return job.getUuid();
     }
 
     public JobId getJobId() {
@@ -23,7 +23,7 @@ public class JobResultImpl implements JobResult {
         return this.status;
     }
 
-    public ResultData getResults() {
-        return this.resultData;
+    public JobData getResults() {
+        return this.jobData;
     }
 }
