@@ -8,12 +8,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+// TODO: don't crash if Peer calls leave() before join()
+
 /**
  * a class that managers membership in a peer-to-peer map/reduce service
  * enforcing load-balancing policies for how man Coordinators are needed
  */
 public class MembershipManager implements RemoteMembershipManager, Communicate {
-  public static final int PORT = 1099;
+  public static final int MANAGER_PORT = 2099;
+  public static final int CLIENT_PORT = 1099;
   public static final String SERVICE_HOST = "127.0.0.1"; // TODO: establish this
   public static final String SERVICE_NAME = "MEMBERSHIP_MANAGER";
 
@@ -43,6 +46,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public Uuid addMember(Uuid newMember) throws RemoteException, NotBoundException {
+    System.out.println("A member is being added.");
     RemoteUser newUser = (RemoteUser) getRemoteRef(newMember, MembershipManager.USER);
 
     if (!newUser.hasMinimumResources()) {
@@ -66,6 +70,8 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public void removeMember(Uuid oldMember) throws RemoteException, NotBoundException {
+    System.out.println("A member is being removed.");
+
     decrementMemberCount();
     int index;
 
@@ -92,8 +98,10 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
-    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.PORT);
-    return registry.lookup(uuid.toString() + peerRole);
+    System.out.println("Getting remote reference.");
+
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.CLIENT_PORT);
+    return registry.lookup(uuid.toString());
   }
 
   /* ---------- private helper methods --------- */
@@ -122,8 +130,10 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method that designates the given Peer as a Coordinator
    */
   private void designateNewPeerAsCoordinator(Uuid uuid) throws RemoteException, NotBoundException {
+    System.out.println("A new Peer is being designated as a Coordinator.");
+
     RemoteUser newUser = (RemoteUser) getRemoteRef(uuid, USER);
-    newUser.bindCoordinator();
+    newUser.setAsCoordinator();
     RemoteCoordinator newCoordinator = (RemoteCoordinator) getRemoteRef(uuid, COORDINATOR);
 
     synchronized (this.coordinators) {
@@ -140,10 +150,12 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method to designate a pre-existing non-Coordinator Peer as a new Coordinator
    */
   private void selectPreExistingPeerToBeCoordinator() throws RemoteException, NotBoundException {
+    System.out.println("An existing Peer is being selected to be a Coordinator.");
+
     RemoteCoordinator coordinator = getCoordinatorRef();
     Uuid peer = coordinator.getActivePeer();
     RemoteUser newUser = (RemoteUser) getRemoteRef(peer, USER);
-    newUser.bindCoordinator();
+    newUser.setAsCoordinator();
 
     for (RemoteCoordinator rc : this.coordinators) {
       rc.removePeer(peer);
@@ -160,6 +172,8 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * and registers that Peer as available for non-Coordinator work with all remaining Coordinators
    */
   private void removeACoordinator() throws RemoteException, NotBoundException {
+    System.out.println("Removing a Coordinator");
+
     RemoteCoordinator oldCoordinator;
 
     synchronized (this.coordinators) {
@@ -193,6 +207,8 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * @return a reference to a RemoteCoordinator
    */
   private RemoteCoordinator getCoordinatorRef() {
+    System.out.println("Getting new Coordinator reference.");
+
     int numCoordinators;
     int index;
     RemoteCoordinator coordinator;
