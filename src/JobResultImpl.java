@@ -3,12 +3,12 @@ import java.io.Serializable;
 public class JobResultImpl implements JobResult {
     private Job job;
     private String status;
-    private DataSet dataSet;
+    private JobData jobData;
 
-    public void JobResult(Job job, String status, DataSet dataSet) {
+    public void JobResult(Job job, String status, JobData jobData) {
         this.job = job;
         this.status = status;
-        this.dataSet = dataSet;
+        this.jobData = jobData;
     }
 
     public Uuid getUserUuid() {
@@ -23,7 +23,7 @@ public class JobResultImpl implements JobResult {
         return this.status;
     }
 
-    public DataSet getResults() {
-        return this.dataSet;
+    public JobData getResults() {
+        return this.jobData;
     }
 }
