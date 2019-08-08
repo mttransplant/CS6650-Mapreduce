@@ -18,6 +18,8 @@ public class JobImpl implements Job {
         this.reducer = reducer;
     }
 
+    // TODO: Add method and interface to split the passed data into an array of data
+
     public Uuid getUuid() {
         return userUuid;
     }
