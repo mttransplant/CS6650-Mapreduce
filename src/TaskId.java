@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.UUID;
 
-public class TaskId {
+public class TaskId implements Serializable {
     private Uuid submitter;
     private String jobId;
     private String taskId;

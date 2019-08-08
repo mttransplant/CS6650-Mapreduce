@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManager, RemoteJobManager, TaskManager, RemoteTaskManager {
+public class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManager, RemoteJobManager, TaskManager, RemoteTaskManager {
   private RemoteMembershipManager service;
   private Uuid uuid;
   private RemoteCoordinator coordinator;
@@ -23,7 +23,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
     try {
       // connect to the MembershipService and get a Uuid
       Registry remoteRegistry = LocateRegistry.getRegistry(MembershipManager.SERVICE_HOST, MembershipManager.PORT);
-      this.service = (RemoteMembershipManager) remoteRegistry.lookup(MembershipManager.SERVICE_HOST);
+      this.service = (RemoteMembershipManager) remoteRegistry.lookup(MembershipManager.SERVICE_NAME);
       this.uuid = this.service.generateUuid(InetAddress.getLocalHost());
 
       // create references to all Remote Peer interfaces
@@ -50,11 +50,14 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
       localRegistry.rebind(getUuid().toString() + MembershipManager.JOB_MANAGER, jobManagerStub);
       localRegistry.rebind(getUuid().toString() + MembershipManager.TASK_MANAGER, taskManagerStub);
     } catch (UnknownHostException uhe) {
-      // TODO: handle this exception
+      // TODO: handle this exception better?
+      System.out.println(String.format("UnkownHoustException encountered launching Peer: %s", uhe.getMessage()));
     } catch (RemoteException re) {
-      // TODO: then handle this exception
+      // TODO: then handle this exception better?
+      System.out.println(String.format("RemoteException encountered launching Peer: %s", re.getMessage()));
     } catch (NotBoundException nbe) {
-      // TODO: then handle this exception too
+      // TODO: then handle this exception better too?
+      System.out.println(String.format("NotBoundException encountered launching Peer: %s", nbe.getMessage()));
     }
   }
 

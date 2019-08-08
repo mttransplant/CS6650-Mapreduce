@@ -1,8 +1,6 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
-import java.io.File;
-
 public class TaskImpl implements Task {
     private TaskId taskId;
     private Uuid userUuid;

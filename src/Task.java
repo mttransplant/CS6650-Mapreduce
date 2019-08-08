@@ -2,15 +2,13 @@ import MapReduce.Mapper;
 import MapReduce.Reducer;
 
 import java.io.File;
+import java.io.Serializable;
 
 /**
  * an interface to represent the Task that will be passed from a JobManager to a TaskManager
  *
  */
-
-/* DAN!!!!!! */
-
-public interface Task {
+public interface Task extends Serializable {
 
     /**
      * a method to retrieve the TaskId.

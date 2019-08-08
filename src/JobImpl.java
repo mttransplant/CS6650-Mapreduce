@@ -1,8 +1,6 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
-import java.io.File;
-
 public class JobImpl implements Job {
     private Uuid userUuid;
     private JobId jobId;
@@ -35,11 +33,8 @@ public class JobImpl implements Job {
         return mapper;
     }
 
-
-
     public Reducer getReducer() {
         // TODO: Connect with nay on naming and implementation details
         return reducer;
     }
-
 }
