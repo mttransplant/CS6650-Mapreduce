@@ -10,7 +10,7 @@ import java.util.Map;
  * enforces load-balancing policy (work distribution based on Peer capacity)
  * its implementation must provide a constructor that sets its list of available Peers using a pre-existing list
  */
-interface RemoteCoordinator extends Remote, Identify {
+public interface RemoteCoordinator extends Remote, Identify {
   /**
    * a method to add a Peer to this RemoteCoordinator's list of available Peers
    * called by a MembershipManager

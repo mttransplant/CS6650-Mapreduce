@@ -1,6 +1,7 @@
+import java.io.Serializable;
 import java.util.UUID;
 
-class JobId {
+public class JobId implements Serializable {
   private Uuid submitter;
   private String jobId;
   private long jobSize;

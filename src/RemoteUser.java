@@ -1,10 +1,11 @@
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 
 /**
  * an interface to enable remote communication between a user of a peer-to-peer map/reduce service
  * and the peer in the network that is managing the coordination/completion of its job submission
  */
-interface RemoteUser extends Remote, Identify {
+public interface RemoteUser extends Remote, Identify {
   /**
    * a method to get the Job associated with the given JobId
    * called by a JobManager
@@ -12,7 +13,7 @@ interface RemoteUser extends Remote, Identify {
    * @param jobId the JobId of the Job to be returned
    * @return the Job associated with the given JobId
    */
-  Job getJob(JobId jobId);
+  Job getJob(JobId jobId) throws RemoteException;
 
   /**
    * a method to set the results for the given jobId
@@ -20,11 +21,11 @@ interface RemoteUser extends Remote, Identify {
    *
    * @param results the results associated with the given jobId
    */
-  void setJobResult(JobId jobId, JobResult results); // called from the JobManager
+  void setJobResult(JobId jobId, JobResult results) throws RemoteException;
 
-  void bindCoordinator();
+  void bindCoordinator() throws RemoteException;
 
-  void unbindCoordinator();
+  void unbindCoordinator() throws RemoteException;
 
-  boolean hasMinimumResources();
+  boolean hasMinimumResources() throws RemoteException;
 }
