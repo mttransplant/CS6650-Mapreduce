@@ -43,7 +43,8 @@ public interface Task extends Serializable {
      *
      * @return the DataSet to be processed
      */
-    DataSet getDataset();
+      JobData getDataset();
+
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided

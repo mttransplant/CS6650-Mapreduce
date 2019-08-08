@@ -44,5 +44,5 @@ public interface JobResult extends Serializable {
      * @return the File of the processed results
      * TODO: need to decide if file will be null if there were errors
      */
-    DataSet getResults();
+    ResultData getResults();
 }
