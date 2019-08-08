@@ -1,27 +1,26 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
-import java.io.Serializable;
-import java.util.List;
+import java.io.File;
 
-public class JobImpl implements Job, Serializable {
+public class JobImpl implements Job {
     private Uuid userUuid;
     private JobId jobId;
-    private JobData jobData;
+    private DataSet dataSet;
     private Mapper mapper;
     private Reducer reducer;
 
-    public void Job(Uuid userUuid, JobId jobId, JobData jobData, Mapper mapper, Reducer reducer) {
+    public void Job(Uuid userUuid, JobId jobId, DataSet dataSet, Mapper mapper, Reducer reducer) {
         this.userUuid = userUuid;
         this.jobId = jobId;
-        this.jobData = jobData;
+        this.dataSet = dataSet;
         this.mapper = mapper;
         this.reducer = reducer;
     }
 
     // TODO: Add method and interface to split the passed data into an array of data
 
-    public Uuid getUserUuid() {
+    public Uuid getUuid() {
         return userUuid;
     }
 
@@ -29,19 +28,20 @@ public class JobImpl implements Job, Serializable {
         return jobId;
     }
 
-    public JobData getDataset() {
-        return jobData;
-    }
-
-    public List<JobData> getSplitData(int splitSize) {
-        return jobData.splitData(splitSize);
+    public DataSet getDataset() {
+        return dataSet;
     }
 
     public Mapper getMapper() {
+        // TODO: Connect with Nay on naming and implementation details
         return mapper;
     }
 
+
+
     public Reducer getReducer() {
+        // TODO: Connect with nay on naming and implementation details
         return reducer;
     }
+
 }
