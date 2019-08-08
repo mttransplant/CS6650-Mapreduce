@@ -43,9 +43,9 @@ public interface Task {
      * be processed by the passed MapReduce.Mapper and MapReduce.Reducer functions
      * called by the TaskManager assigned to the Task
      *
-     * @return the File of data to be processed
+     * @return the DataSet to be processed
      */
-    File getDataset();
+    DataSet getDataset();
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided

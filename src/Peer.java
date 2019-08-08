@@ -22,8 +22,8 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
     try {
       // connect to the MembershipService and get a Uuid
-      Registry remoteRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.serviceHost, RemoteMembershipManager.PORT);
-      this.service = (RemoteMembershipManager) remoteRegistry.lookup(RemoteMembershipManager.serviceHost);
+      Registry remoteRegistry = LocateRegistry.getRegistry(MembershipManager.SERVICE_HOST, MembershipManager.PORT);
+      this.service = (RemoteMembershipManager) remoteRegistry.lookup(MembershipManager.SERVICE_HOST);
       this.uuid = this.service.generateUuid(InetAddress.getLocalHost());
 
       // create references to all Remote Peer interfaces
@@ -32,17 +32,17 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
       RemoteTaskManager taskManager = this;
 
       // get a stub for each of these Remote Peer interfaces
-      RemoteUser userStub = (RemoteUser) UnicastRemoteObject.exportObject(user, RemoteMembershipManager.PORT);
-      RemoteJobManager jobManagerStub = (RemoteJobManager) UnicastRemoteObject.exportObject(jobManager, RemoteMembershipManager.PORT);
-      RemoteTaskManager taskManagerStub = (RemoteTaskManager) UnicastRemoteObject.exportObject(taskManager, RemoteMembershipManager.PORT);
+      RemoteUser userStub = (RemoteUser) UnicastRemoteObject.exportObject(user, MembershipManager.PORT);
+      RemoteJobManager jobManagerStub = (RemoteJobManager) UnicastRemoteObject.exportObject(jobManager, MembershipManager.PORT);
+      RemoteTaskManager taskManagerStub = (RemoteTaskManager) UnicastRemoteObject.exportObject(taskManager, MembershipManager.PORT);
 
       // create a local registry... or simply get it if it already exists
       Registry localRegistry;
 
       try {
-        localRegistry = LocateRegistry.createRegistry(RemoteMembershipManager.PORT);
+        localRegistry = LocateRegistry.createRegistry(MembershipManager.PORT);
       } catch (RemoteException re) {
-        localRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.PORT);
+        localRegistry = LocateRegistry.getRegistry(MembershipManager.PORT);
       }
 
       // register this Peer as a RemoteUser, RemoteCoordinator, RemoteJobManager, and RemoteTaskManager
@@ -62,8 +62,12 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public void join() {
-    Uuid coord = this.service.addMember(this.uuid);
-    this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+    try {
+      Uuid coord = this.service.addMember(this.uuid);
+      this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+    } catch (RemoteException | NotBoundException ex) {
+      // TODO: figure out if this exception needs to be caught and, if so, what needs to happen in the catch clause
+    }
   }
 
   @Override
@@ -78,7 +82,11 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public void leave() {
-    this.service.removeMember(this.uuid);
+    try {
+      this.service.removeMember(this.uuid);
+    } catch (RemoteException | NotBoundException ex) {
+      // TODO: figure out if this exception needs to be caught and, if so, what needs to happen in the catch clause
+    }
   }
 
   /* ---------- RemoteUser methods ---------- */
@@ -97,13 +105,13 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
   @Override
   public void bindCoordinator() {
     try {
-      RemoteCoordinator coordinatorStub = (RemoteCoordinator) UnicastRemoteObject.exportObject(coordinator, RemoteMembershipManager.PORT);
+      RemoteCoordinator coordinatorStub = (RemoteCoordinator) UnicastRemoteObject.exportObject(coordinator, MembershipManager.PORT);
       Registry localRegistry;
 
       try {
-        localRegistry = LocateRegistry.createRegistry(RemoteMembershipManager.PORT);
+        localRegistry = LocateRegistry.createRegistry(MembershipManager.PORT);
       } catch (RemoteException re) {
-        localRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.PORT);
+        localRegistry = LocateRegistry.getRegistry(MembershipManager.PORT);
       }
 
       localRegistry.rebind(getUuid().toString() + MembershipManager.COORDINATOR, coordinatorStub);
@@ -118,9 +126,9 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
       Registry localRegistry;
 
       try {
-        localRegistry = LocateRegistry.createRegistry(RemoteMembershipManager.PORT);
+        localRegistry = LocateRegistry.createRegistry(MembershipManager.PORT);
       } catch (RemoteException re) {
-        localRegistry = LocateRegistry.getRegistry(RemoteMembershipManager.PORT);
+        localRegistry = LocateRegistry.getRegistry(MembershipManager.PORT);
       }
 
       localRegistry.unbind(getUuid().toString() + MembershipManager.COORDINATOR);
@@ -268,7 +276,7 @@ class Peer implements User, RemoteUser, Coordinator, RemoteCoordinator, JobManag
 
   @Override
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
-    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), RemoteMembershipManager.PORT);
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.PORT);
     return registry.lookup(uuid.toString() + peerRole);
   }
 
