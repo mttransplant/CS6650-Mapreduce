@@ -13,6 +13,10 @@ import java.util.Random;
  * enforcing load-balancing policies for how man Coordinators are needed
  */
 class MembershipManager implements RemoteMembershipManager, Communicate {
+  public static final int PORT = 1099;
+  public static final String SERVICE_HOST = "DEDICATED_IP"; // TODO: establish this
+  public static final String SERVICE_NAME = "MEMBERSHIP_MANAGER";
+
   private final List<RemoteCoordinator> coordinators;
   private final Random randomNumberGenerator;
   private int memberCount;
@@ -88,7 +92,7 @@ class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
-    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), RemoteMembershipManager.PORT);
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.PORT);
     return registry.lookup(uuid.toString() + peerRole);
   }
 
