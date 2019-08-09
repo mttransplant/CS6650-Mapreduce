@@ -3,6 +3,7 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 import java.io.Serializable;
+import java.util.List;
 
 
 /**
@@ -37,6 +38,8 @@ public interface Job extends Serializable {
      * @return the File of data to be processed
      */
     JobData getDataset();
+
+    public List<List<String>> getSplitData(int splitSize);
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided

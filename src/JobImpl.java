@@ -1,6 +1,8 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
+import java.util.List;
+
 public class JobImpl implements Job {
     private Uuid userUuid;
     private JobId jobId;
@@ -30,13 +32,15 @@ public class JobImpl implements Job {
         return jobData;
     }
 
+    public List<List<String>> getSplitData(int splitSize) {
+        return jobData.splitData(splitSize);
+    }
+
     public Mapper getMapper() {
-        // TODO: Connect with Nay on naming and implementation details
         return mapper;
     }
 
     public Reducer getReducer() {
-        // TODO: Connect with nay on naming and implementation details
         return reducer;
     }
 }
