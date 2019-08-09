@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JobData {
+public class JobData implements Serializable {
     private List<String> jobData;
 
     // this initializer is used by the User to provide raw data
