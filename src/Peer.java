@@ -39,21 +39,12 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
       // create references to the Remote Peer interface
       RemotePeer peer = this;
-//      RemoteUser user = this;
-//      RemoteJobManager jobManager = this;
-//      RemoteTaskManager taskManager = this;
 
-      // get a stub for each of these Remote Peer interfaces
+      // get a stub for this Remote Peer
       RemotePeer peerStub = (RemotePeer) UnicastRemoteObject.exportObject(peer, MembershipManager.CLIENT_PORT);
-//      RemoteUser userStub = (RemoteUser) UnicastRemoteObject.exportObject(user, MembershipManager.CLIENT_PORT);
-//      RemoteJobManager jobManagerStub = (RemoteJobManager) UnicastRemoteObject.exportObject(jobManager, MembershipManager.CLIENT_PORT);
-//      RemoteTaskManager taskManagerStub = (RemoteTaskManager) UnicastRemoteObject.exportObject(taskManager, MembershipManager.CLIENT_PORT);
 
-      // register this Peer as a RemoteUser, RemoteCoordinator, RemoteJobManager, and RemoteTaskManager
+      // register this Peer as a RemotePeer
       localRegistry.rebind(getUuid().toString(), peerStub);
-//      localRegistry.rebind(getUuid().toString() + MembershipManager.USER, userStub);
-//      localRegistry.rebind(getUuid().toString() + MembershipManager.JOB_MANAGER, jobManagerStub);
-//      localRegistry.rebind(getUuid().toString() + MembershipManager.TASK_MANAGER, taskManagerStub);
     } catch (UnknownHostException uhe) {
       // TODO: handle this exception better?
       System.out.println(String.format("UnkownHoustException encountered launching Peer: %s", uhe.getMessage()));
@@ -132,7 +123,6 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   public void assignJobToJobManager(JobId jobId) {
     // TODO: implement functionality to pick a JobManager and assign the Job
   }
-
 
   /* ---------- RemoteCoordinator methods ---------- */
 
