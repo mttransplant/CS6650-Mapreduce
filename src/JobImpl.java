@@ -1,9 +1,10 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class JobImpl implements Job {
+public class JobImpl implements Job, Serializable {
     private Uuid userUuid;
     private JobId jobId;
     private JobData jobData;

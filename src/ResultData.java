@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class ResultData {
+public class ResultData implements Serializable {
     private Map<String, Integer> resultData;
 
     // this initializer is used by the TaskManager and JobManager
