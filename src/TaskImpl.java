@@ -1,7 +1,9 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
-public class TaskImpl implements Task {
+import java.io.Serializable;
+
+public class TaskImpl implements Task, Serializable {
     private TaskId taskId;
     private Uuid userUuid;
     private Uuid jobManagerUuid;
