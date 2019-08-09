@@ -113,6 +113,10 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * @return true if load-balancing policy dictates, false otherwise
    */
   private boolean newCoordinatorRequired() {
+    if (memberCount < 1) {
+      return false;
+    }
+
     return this.coordinators.isEmpty() || this.coordinators.size() <= this.memberCount/PEERS_PER_COORDINATOR;
   }
 
@@ -123,6 +127,10 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * @return true if load-balancing policy dictates, false otherwise
    */
   private boolean tooManyCoordinators() {
+    if (memberCount < 1) {
+      return false;
+    }
+
     return !this.coordinators.isEmpty() && this.coordinators.size() > this.memberCount/PEERS_PER_COORDINATOR;
   }
 
