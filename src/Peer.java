@@ -6,9 +6,8 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.*;
 
 public class Peer implements User, Coordinator, JobManager, TaskManager, RemotePeer {
   private RemoteMembershipManager service;
@@ -17,6 +16,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private final Map<String, Uuid> availablePeers;
   private List<Job> jobs;
   private boolean isCoordinator;
+  private ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
 
   public Peer() {
     this.availablePeers = new HashMap<>();
@@ -203,9 +203,62 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     return null;
   }
 
+  private RemoteTaskManager nextRtm(List<RemoteTaskManager> rtmList) {
+    Random r = new Random();
+    int index = r.nextInt(rtmList.size());
+    return rtmList.get(index);
+  }
+
+  // establish the completion service that will be used to submit a task to the TaskManager
+  private CompletionService<TaskResult> establishTaskCompletionService(List<RemoteTaskManager> rtmList, List<Task> taskList) {
+    CompletionService<TaskResult> completionService = new ExecutorCompletionService<>(taskExecutor);
+    for (Task task : taskList) {
+      RemoteTaskManager rtm = nextRtm(rtmList);
+      completionService.submit(new Callable<TaskResult>() {
+        public TaskResult call() throws InterruptedException{
+          TaskResult tr;
+          try {
+            tr = rtm.performTask(task);
+          } catch (RemoteException e) {
+            throw new InterruptedException("establishTaskCompletionService: RemoteException");
+          }
+          return tr;
+        }
+      });
+    }
+    return completionService;
+  }
+
+  // run the executor that will administer the previously established completion services
+  private List<TaskResult> executeAcceptorComplService(CompletionService<TaskResult> completionService, int tasksSize) {
+    List<TaskResult> responses = new ArrayList<>();
+    Future<TaskResult> r;
+
+    try {
+      for (int t = 0; t<tasksSize; t++ ) {
+        r = completionService.take();
+        TaskResult tr = r.get(5, TimeUnit.SECONDS);
+        responses.add(tr);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException e) {
+      // TODO: handle this exception
+      e.printStackTrace();
+    } catch (TimeoutException e) {
+      // TODO: handle this exception
+      e.printStackTrace();
+    }
+    return responses;
+  }
+
   @Override
-  public void submitTask(Task task) {
+  public void submitTasks(List<Task> tasks) {
     // TODO: implement this functionality to send performTask(Task task) to a TaskManager
+    List<RemoteTaskManager> rtmList = requestTaskManagers(5);
+    CompletionService<TaskResult> completionService = establishTaskCompletionService(rtmList, tasks);
+    List<TaskResult> taskResultList = executeAcceptorComplService(completionService, tasks.size());
+    // TODO: more to complete here!
   }
 
   @Override
@@ -225,15 +278,30 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     return null;
   }
 
+  private List<Task> splitJobToTasks(Job job) {
+    List<List<String>> splitData = job.getSplitData(1000);
+    // TODO: finish packaging splitData into a List<Task>
+    return null;
+  }
+
 
   /* ---------- RemoteJobManager methods ---------- */
 
   @Override
   public JobResult manageJob(JobId jobId) {
     // TODO: implement this functionality to be called by a Coordinator
+    Job job = retrieveJob(jobId);
+    List<Task> taskList = splitJobToTasks(job);
+
+    submitTasks(taskList);
+
     return null;
   }
 
+  // TODO DISCUSS: remove this?
+  // the executor + Completion service requires that the RMI call return a result
+  // in that case, the TaskManager shouldn't be making a separate call back to
+  // JobManager to submit the results.
   @Override
   public void submitTaskResult(TaskResult taskResult) {
     // TODO: implement this functionality to be used from within a TaskManager
