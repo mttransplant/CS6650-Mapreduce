@@ -16,6 +16,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private final Map<String, Uuid> availablePeers;
   private List<Job> jobs;
   private List<JobId> submittedJobIds;
+  private List<JobResult> unDeliveredJobResults;
   private boolean isCoordinator;
   private ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
 
@@ -194,15 +195,17 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   /* ---------- JobManager methods ---------- */
 
   @Override
-  public Job retrieveJob(JobId jobId) {
-    // TODO: implement this functionality to access getJob(JobId jobid) on the RemoteUser
+  public Job retrieveJob(JobId jobId) throws RemoteException, NotBoundException{
     try {
       RemoteUser user = (RemoteUser) getRemoteRef(jobId.getSubmitter(),MembershipManager.USER);
       return user.getJob(jobId);
-    } catch (RemoteException | NotBoundException e) {
-      // TODO: handle this exception
+    } catch (RemoteException e) {
+      System.out.println("JobManager.retrieveJob: RemoteException: " + e.getMessage());
+      throw e;
+    } catch (NotBoundException e) {
+      System.out.println("JobManager.retrieveJob: NotBoundException: " + e.getMessage());
+      throw e;
     }
-    return null;
   }
 
   private RemoteTaskManager nextRtm(List<RemoteTaskManager> rtmList) {
@@ -222,6 +225,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
           try {
             tr = rtm.performTask(task);
           } catch (RemoteException e) {
+            System.out.println("JobManager.establishTaskCompletionService Remote Exception: " + e.getMessage());
             throw new InterruptedException("establishTaskCompletionService: RemoteException: " + e.getMessage());
           }
           return tr;
@@ -239,24 +243,22 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     try {
       for (int t = 0; t<tasksSize; t++ ) {
         r = completionService.take();
-        TaskResult tr = r.get(5, TimeUnit.SECONDS);
+        TaskResult tr = r.get(Task.TIMEOUT, TimeUnit.SECONDS);
         responses.add(tr);
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
     } catch (ExecutionException e) {
-      // TODO: handle this exception
-      e.printStackTrace();
+      System.out.println("JobManager.executeTaskCompletionService Execution Exception: " + e.getMessage());
     } catch (TimeoutException e) {
-      // TODO: handle this exception
-      e.printStackTrace();
+      System.out.println("JobManager.executeTaskCompletionService: TaskManager didn't return results in time.");
     }
     return responses;
   }
 
   @Override
   public List<TaskResult> submitTasks(List<Task> tasks) {
-    List<RemoteTaskManager> rtmList = requestTaskManagers(5);
+    List<RemoteTaskManager> rtmList = requestTaskManagers();
     CompletionService<TaskResult> completionService = establishTaskCompletionService(rtmList, tasks);
     List<TaskResult> taskResultList = executeTaskCompletionService(completionService, tasks.size());
     List<Task> missingTasks = checkAllTasksReturned(tasks, taskResultList);
@@ -276,18 +278,19 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       RemoteUser user = (RemoteUser) getRemoteRef(jobResult.getUserUuid(), MembershipManager.USER);
       user.setJobResult(jobResult.getJobId(), jobResult);
     } catch (RemoteException | NotBoundException e) {
-      // TODO: handle this exception
+      unDeliveredJobResults.add(jobResult);
+      System.out.println("JobManager.returnResults: Unable to deliver results. Saving results for future delivery.");
     }
   }
 
   @Override
-  public List<RemoteTaskManager> requestTaskManagers(int numberOfPeers) {
+  public List<RemoteTaskManager> requestTaskManagers() {
     List<RemoteTaskManager> rtms = null;
     try {
       rtms = coordinator.getTaskManagers();
-//      rtms = coordinator.getTaskManagers(numberOfPeers);
     } catch (RemoteException re) {
-      // TODO: handle this exception
+      System.out.println("JobManager.requestTaskManagers: Unable to reach coordinator");
+      // TODO: Need a way to request a different Coordinator
     }
     return rtms;
   }
@@ -323,15 +326,18 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   synchronized private void processJobIdQueue() {
     while (submittedJobIds.size() > 0) {
-      for (JobId jobId : submittedJobIds) {
+      JobId jobId = submittedJobIds.get(0);
+      try {
         Job job = retrieveJob(jobId);
         List<Task> taskList = splitJobToTasks(job);
         List<TaskResult> taskResults = submitTasks(taskList);
         TaskResult finalTaskResult = mergeTaskResults(taskResults);
         JobResult jobResult = new JobResultImpl(job, finalTaskResult.getStatus(), finalTaskResult.getResults());
         returnResults(jobResult);
-
+      } catch (RemoteException | NotBoundException e) {
+        System.out.println("JobManager.processJobIdQueue: Unable to reach user to retrieve job. JobId removed from queue. " + e.getMessage());
       }
+      submittedJobIds.remove(0);
     }
   }
 
