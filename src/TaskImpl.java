@@ -11,7 +11,7 @@ public class TaskImpl implements Task, Serializable {
     private Mapper mapper;
     private Reducer reducer;
 
-    public void Task(TaskId taskId, Uuid userUuid, Uuid jobManagerUuid, JobData jobData, Mapper mapper, Reducer reducer) {
+    public TaskImpl(TaskId taskId, Uuid userUuid, Uuid jobManagerUuid, JobData jobData, Mapper mapper, Reducer reducer) {
         this.taskId = taskId;
         this.userUuid = userUuid;
         this.jobManagerUuid = jobManagerUuid;
