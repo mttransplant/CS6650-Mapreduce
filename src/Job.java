@@ -21,7 +21,7 @@ public interface Job extends Serializable {
      *
      * @return the Uuid of the originating peer
      */
-    Uuid getUuid();
+    Uuid getUserUuid();
 
     /**
      * a method to retrieve the JobId of the job.
@@ -39,7 +39,7 @@ public interface Job extends Serializable {
      */
     JobData getDataset();
 
-    public List<List<String>> getSplitData(int splitSize);
+    public List<JobData> getSplitData(int splitSize);
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided

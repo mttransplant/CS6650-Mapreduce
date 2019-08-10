@@ -15,6 +15,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private RemoteCoordinator coordinator;
   private final Map<String, Uuid> availablePeers;
   private List<Job> jobs;
+  private List<JobId> submittedJobIds;
   private boolean isCoordinator;
   private ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
 
@@ -184,7 +185,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   @Override
-  public List<RemoteTaskManager> getTaskManagers() {
+  public List<RemoteTaskManager> getTaskManagers(int num) {
     // TODO: implement this functionality to be called by a JobManager
     return null;
   }
@@ -220,7 +221,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
           try {
             tr = rtm.performTask(task);
           } catch (RemoteException e) {
-            throw new InterruptedException("establishTaskCompletionService: RemoteException");
+            throw new InterruptedException("establishTaskCompletionService: RemoteException: " + e.getMessage());
           }
           return tr;
         }
@@ -230,7 +231,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   // run the executor that will administer the previously established completion services
-  private List<TaskResult> executeAcceptorComplService(CompletionService<TaskResult> completionService, int tasksSize) {
+  private List<TaskResult> executeTaskCompletionService(CompletionService<TaskResult> completionService, int tasksSize) {
     List<TaskResult> responses = new ArrayList<>();
     Future<TaskResult> r;
 
@@ -253,17 +254,23 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   @Override
-  public void submitTasks(List<Task> tasks) {
-    // TODO: implement this functionality to send performTask(Task task) to a TaskManager
+  public List<TaskResult> submitTasks(List<Task> tasks) {
     List<RemoteTaskManager> rtmList = requestTaskManagers(5);
     CompletionService<TaskResult> completionService = establishTaskCompletionService(rtmList, tasks);
-    List<TaskResult> taskResultList = executeAcceptorComplService(completionService, tasks.size());
-    // TODO: more to complete here!
+    List<TaskResult> taskResultList = executeTaskCompletionService(completionService, tasks.size());
+    List<Task> missingTasks = checkAllTasksReturned(tasks, taskResultList);
+    while (missingTasks.size() > 0) {
+      completionService = establishTaskCompletionService(rtmList, missingTasks);
+      List<TaskResult> moreTaskResults = executeTaskCompletionService(completionService, missingTasks.size());
+      taskResultList.addAll(moreTaskResults);
+      missingTasks = checkAllTasksReturned(tasks, taskResultList);
+    }
+
+    return taskResultList;
   }
 
   @Override
   public void returnResults(JobResult jobResult) {
-    // TODO: implement this functionality to return the JobResult to a RemoteUser
     try {
       RemoteUser user = (RemoteUser) getRemoteRef(jobResult.getUserUuid(), MembershipManager.USER);
       user.setJobResult(jobResult.getJobId(), jobResult);
@@ -274,14 +281,62 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public List<RemoteTaskManager> requestTaskManagers(int numberOfPeers) {
-    // TODO: implement this functionality to get a list of TaskManagers from RemoteCoordinator
-    return null;
+    List<RemoteTaskManager> rtms = null;
+    try {
+      rtms = coordinator.getTaskManagers(numberOfPeers);
+    } catch (RemoteException re) {
+      // TODO: handle this exception
+    }
+    return rtms;
+  }
+
+  private List<Task> checkAllTasksReturned(List<Task> tasks, List<TaskResult> taskResultList) {
+    List<Task> missingTasks = new ArrayList<>();
+    for (Task t : tasks) {
+      String subTaskId = t.getTaskId().getTaskId();
+      boolean idFound = false;
+      for (TaskResult tr : taskResultList) {
+        if (!idFound && tr.getTaskId().getTaskId().equals(subTaskId)) {
+          idFound = true;
+        }
+      }
+      if (!idFound) {
+        missingTasks.add(t);
+      }
+    }
+    return missingTasks;
   }
 
   private List<Task> splitJobToTasks(Job job) {
-    List<List<String>> splitData = job.getSplitData(1000);
-    // TODO: finish packaging splitData into a List<Task>
-    return null;
+    List<Task> taskList = new ArrayList<>();
+    List<JobData> splitData = job.getSplitData(1000);
+    TaskId taskId = new TaskId(job.getUserUuid(),job.getJobId());
+    for (JobData jd : splitData) {
+      Task task = new TaskImpl(taskId, job.getUserUuid(), this.uuid, jd, job.getMapper(), job.getReducer());
+      taskList.add(task);
+    }
+
+    return taskList;
+  }
+
+  synchronized private void processJobIdQueue() {
+    while (submittedJobIds.size() > 0) {
+      for (JobId jobId : submittedJobIds) {
+        Job job = retrieveJob(jobId);
+        List<Task> taskList = splitJobToTasks(job);
+        List<TaskResult> taskResults = submitTasks(taskList);
+        TaskResult finalTaskResult = mergeTaskResults(taskResults);
+        JobResult jobResult = new JobResultImpl(job, finalTaskResult.getStatus(), finalTaskResult.getResults());
+        returnResults(jobResult);
+
+      }
+    }
+  }
+
+  private TaskResult mergeTaskResults(List<TaskResult> taskResults) {
+    TaskResult taskResult = null;
+    // TODO: Implement the merge of returned TaskResults into a finalTaskResult
+    return taskResult;
   }
 
 
@@ -289,17 +344,16 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public JobResult manageJob(JobId jobId) {
+    // TODO DISCUSS: Why should this return the JobResult to the Coordinator?
     // TODO: implement this functionality to be called by a Coordinator
-    Job job = retrieveJob(jobId);
-    List<Task> taskList = splitJobToTasks(job);
-
-    submitTasks(taskList);
+    submittedJobIds.add(jobId);
+    processJobIdQueue();
 
     return null;
   }
 
   // TODO DISCUSS: remove this?
-  // the executor + Completion service requires that the RMI call return a result
+  // the executor + Completion service expects that the RMI call return a result
   // in that case, the TaskManager shouldn't be making a separate call back to
   // JobManager to submit the results.
   @Override
