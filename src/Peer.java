@@ -185,8 +185,9 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   @Override
-  public List<RemoteTaskManager> getTaskManagers(int num) {
+  public List<RemoteTaskManager> getTaskManagers() {
     // TODO: implement this functionality to be called by a JobManager
+    // TODO: Can this accept an int for the number of TaskManagers to return?
     return null;
   }
 
@@ -283,7 +284,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   public List<RemoteTaskManager> requestTaskManagers(int numberOfPeers) {
     List<RemoteTaskManager> rtms = null;
     try {
-      rtms = coordinator.getTaskManagers(numberOfPeers);
+      rtms = coordinator.getTaskManagers();
+//      rtms = coordinator.getTaskManagers(numberOfPeers);
     } catch (RemoteException re) {
       // TODO: handle this exception
     }
