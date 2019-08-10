@@ -1,3 +1,5 @@
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.util.List;
 
 /**
@@ -14,7 +16,7 @@ public interface JobManager extends Communicate {
   // TODO: determine what methods are needed here
 
     // called to collect the Job from the User, given a JobId
-    Job retrieveJob(JobId jobId);
+    Job retrieveJob(JobId jobId) throws RemoteException, NotBoundException;
 
     // called to submit a task to a TaskManager for execution
     List<TaskResult> submitTasks(List<Task> task);
@@ -23,5 +25,5 @@ public interface JobManager extends Communicate {
     void returnResults(JobResult jobResult);
 
     // called to get a list of available TaskManagers from the Coordinator
-    List<RemoteTaskManager> requestTaskManagers(int numberOfPeers);
+    List<RemoteTaskManager> requestTaskManagers();
 }
