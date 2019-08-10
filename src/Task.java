@@ -9,6 +9,8 @@ import java.io.Serializable;
  *
  */
 public interface Task extends Serializable {
+    // constant for how long a JobManager will wait for a TaskManager to respond
+    int TIMEOUT = 60;
 
     /**
      * a method to retrieve the TaskId.
