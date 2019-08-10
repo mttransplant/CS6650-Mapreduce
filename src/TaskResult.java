@@ -1,4 +1,3 @@
-import java.io.File;
 import java.io.Serializable;
 
 /**
@@ -37,7 +36,7 @@ public interface TaskResult extends Serializable {
      *
      * @return a String
      */
-    String status();
+    String getStatus();
 
     /**
      * a method to retrieve the results object that the JobManager returned

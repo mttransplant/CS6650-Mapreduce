@@ -2,8 +2,9 @@
 
 import MapReduce.Mapper;
 import MapReduce.Reducer;
+import java.io.Serializable;
+import java.util.List;
 
-import java.io.File;
 
 /**
  * an interface to represent the job that will be passed from a peer to a JobManager
@@ -11,7 +12,7 @@ import java.io.File;
  * must capture a Uuid, a dataset, a MapReduce.Mapper, and a MapReduce.Reducer
  */
 
-public interface Job {
+public interface Job extends Serializable {
 
     /**
      * a method to retrieve the Uuid of the peer that submitted the job
@@ -20,7 +21,7 @@ public interface Job {
      *
      * @return the Uuid of the originating peer
      */
-    Uuid getUuid();
+    Uuid getUserUuid();
 
     /**
      * a method to retrieve the JobId of the job.
@@ -36,7 +37,9 @@ public interface Job {
      *
      * @return the File of data to be processed
      */
-    DataSet getDataset();
+    JobData getDataset();
+
+    public List<JobData> getSplitData(int splitSize);
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided

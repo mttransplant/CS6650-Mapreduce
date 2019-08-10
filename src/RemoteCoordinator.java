@@ -64,5 +64,5 @@ public interface RemoteCoordinator extends Remote, Identify {
    *
    * @return a list of RemoteTaskManagers to be used by the calling JobManager
    */
-  List<RemoteTaskManager> getTaskManagers() throws RemoteException;
+  List<RemoteTaskManager> getTaskManagers(int num) throws RemoteException;
 }
