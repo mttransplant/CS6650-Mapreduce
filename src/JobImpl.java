@@ -21,7 +21,7 @@ public class JobImpl implements Job, Serializable {
 
     // TODO: Add method and interface to split the passed data into an array of data
 
-    public Uuid getUuid() {
+    public Uuid getUserUuid() {
         return userUuid;
     }
 
@@ -33,7 +33,7 @@ public class JobImpl implements Job, Serializable {
         return jobData;
     }
 
-    public List<List<String>> getSplitData(int splitSize) {
+    public List<JobData> getSplitData(int splitSize) {
         return jobData.splitData(splitSize);
     }
 

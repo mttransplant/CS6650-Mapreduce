@@ -17,7 +17,7 @@ public interface JobManager extends Communicate {
     Job retrieveJob(JobId jobId);
 
     // called to submit a task to a TaskManager for execution
-    void submitTasks(List<Task> task);
+    List<TaskResult> submitTasks(List<Task> task);
 
     // called to return the JobResults back to the RemoteUser
     void returnResults(JobResult jobResult);

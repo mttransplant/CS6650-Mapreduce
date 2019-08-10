@@ -3,17 +3,17 @@ import java.util.UUID;
 
 public class TaskId implements Serializable {
     private Uuid submitter;
-    private String jobId;
+    private JobId jobId;
     private String taskId;
 
-    public TaskId(Uuid userId, String jobId) {
+    public TaskId(Uuid userId, JobId jobId) {
         this.submitter = userId;
         this.jobId = jobId;
         this.taskId = UUID.randomUUID().toString();
     }
 
     Uuid getSubmitter() { return this.submitter; }
-    String getJobId() { return this.jobId; }
+    JobId getJobId() { return this.jobId; }
     String getTaskId() { return this.taskId; }
 
 }
