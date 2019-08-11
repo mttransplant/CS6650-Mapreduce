@@ -1,3 +1,6 @@
+import MapReduce.Mapper;
+import MapReduce.Reducer;
+
 /**
  * an interface to represent a user of a peer-to-peer map/reduce service
  *
@@ -13,6 +16,16 @@ public interface User extends Communicate {
    * delegates responsibility to the RemoteMembershipManager
    */
   void join();
+
+  /**
+   * a method that creates a job from the given id, data, mapper, and reducer
+   *
+   * @param id the id for this job
+   * @param data the data for this job
+   * @param mapper the mapper to be used for this job
+   * @param reducer the reducer to be used for this job
+   */
+  void createJob(JobId id, JobData data, Mapper mapper, Reducer reducer);
 
   /**
    * a method that allows this User to initiate the process of submitting a Job

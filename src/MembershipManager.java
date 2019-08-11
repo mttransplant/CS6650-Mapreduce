@@ -19,6 +19,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
   public static final int CLIENT_PORT = 1099;
   public static final String SERVICE_HOST = "127.0.0.1"; // TODO: establish this
   public static final String SERVICE_NAME = "MEMBERSHIP_MANAGER";
+  public static final int MAX_TASK_MANAGERS_PER_JOB = 5;
 
   private final List<RemoteCoordinator> coordinators;
   private final Random randomNumberGenerator;
