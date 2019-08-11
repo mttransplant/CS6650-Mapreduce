@@ -1,3 +1,7 @@
+import MapReduce.Mapper;
+import MapReduce.Pair;
+import MapReduce.Reducer;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -22,6 +26,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private List<Job> jobs;
   private List<JobId> submittedJobIds;
   private List<JobResult> unDeliveredJobResults;
+  private List<Uuid> reducerIds;
+  private List<Pair> mapResults;
   private boolean isCoordinator;
   private ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
 
@@ -228,7 +234,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
         public TaskResult call() throws InterruptedException{
           TaskResult tr;
           try {
-            tr = rtm.performTask(task);
+            tr = rtm.performMapTask(task);
           } catch (RemoteException e) {
             System.out.println("JobManager.establishTaskCompletionService Remote Exception: " + e.getMessage());
             throw new InterruptedException("establishTaskCompletionService: RemoteException: " + e.getMessage());
@@ -378,8 +384,47 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   /* ---------- RemoteTaskManager methods ---------- */
 
   @Override
-  public TaskResult performTask(Task task) {
-    // TODO: implement this functionality to be used from within a JobManager
+  public TaskResult performMapTask(Task task) {
+    // Mapping Phase
+    Mapper mapper = task.getMapper();
+    Map<String, Integer> map = new HashMap<>();
+    for (String line : task.getDataset().getJobData()) {
+      mapper.map(line, map);
+    }
+
+    for (String key : map.keySet()) {
+      int partition = mapper.getPartition(key);
+
+      try {
+        RemoteTaskManager reducer = (RemoteTaskManager) getRemoteRef(reducerIds.get(partition), MembershipManager.TASK_MANAGER);
+        reducer.submitMapResult(key, map.get(key)); // submit results to corresponding reducer
+      } catch (NotBoundException e) {
+        System.out.println("TaskManager.performMapTask NotBoundException: " + e.getMessage());
+      } catch (RemoteException e) {
+        System.out.println("TaskManager.performMapTask RemoteException: " + e.getMessage());
+      }
+    }
+
+    // TODO: Return TaskResult object to JobManager
+    return null;
+  }
+
+  @Override
+  public void submitMapResult(String key, int value) {
+    if (mapResults == null) {
+      mapResults = new ArrayList<>();
+    }
+    mapResults.add(new Pair(key, value));
+  }
+
+  @Override
+  public TaskResult performReduceTask(Task task) {
+    // Reduce Phase
+    Reducer reducer = task.getReducer();
+    Map<String, Integer> map = new HashMap<>();
+    reducer.reduce(mapResults, map);
+
+    // TODO: return final aggregate result to JobManager
     return null;
   }
 
