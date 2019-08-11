@@ -1,6 +1,7 @@
 package MapReduce;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * an interface to represent the reduce function
@@ -8,8 +9,9 @@ import java.util.List;
 public interface Reducer {
 
     /**
-     * Reduce function
-     * @return
+     * Reduce function'
+     * @param values values from the mapper
+     * @param map aggregate map
      */
-    String reduce(String key, List<Integer> values);
+    void reduce(List<Pair> values, Map<String, Integer> map);
 }
