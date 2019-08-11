@@ -3,16 +3,16 @@ import java.util.UUID;
 
 public class JobId implements Serializable {
   private Uuid submitter;
-  private String jobId;
+  private String jobIdNumber;
   private long jobSize;
 
   public JobId(Uuid userId, long jobSize) {
     this.submitter = userId;
-    this.jobId = UUID.randomUUID().toString();
+    this.jobIdNumber = UUID.randomUUID().toString();
     this.jobSize = jobSize;
   }
 
   Uuid getSubmitter() { return this.submitter; }
-  String getJobId() { return this.jobId; }
+  String getJobIdNumber() { return this.jobIdNumber; }
   long getJobSize() { return this.jobSize; }
 }
