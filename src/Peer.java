@@ -13,6 +13,11 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ * 1. aggregate: mergeTaskResults()... establish a delegate for this method should be established in the Job and/or Reduce interface (Nay)
+ * 2. try to make Task-related interfaces/classes generic if reasonable (Dan)
+ */
+
 public class Peer implements User, Coordinator, JobManager, TaskManager, RemotePeer {
   private RemoteMembershipManager service;
   private Uuid uuid;
@@ -341,7 +346,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
         JobResult jobResult = new JobResultImpl(job, finalTaskResult.getStatus(), finalTaskResult.getResults());
         returnResults(jobResult);
       } catch (RemoteException | NotBoundException e) {
-        System.out.println("JobManager.processJobIdQueue: Unable to reach user to retrieve job. JobId removed from queue. " + e.getMessage());
+        System.out.println("JobManager.processJobIdQueue: Unable to reach user to return job. JobId removed from queue. " + e.getMessage());
       }
       submittedJobIds.remove(0);
     }
@@ -357,13 +362,10 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   /* ---------- RemoteJobManager methods ---------- */
 
   @Override
-  public JobResult manageJob(JobId jobId) {
-    // TODO DISCUSS: Why should this return the JobResult to the Coordinator?
+  public void manageJob(JobId jobId) {
     // TODO: implement this functionality to be called by a Coordinator
     submittedJobIds.add(jobId);
     processJobIdQueue();
-
-    return null;
   }
 
   // TODO DISCUSS: remove this?
