@@ -11,7 +11,7 @@ public class JobImpl implements Job, Serializable {
     private Mapper mapper;
     private Reducer reducer;
 
-    public void Job(Uuid userUuid, JobId jobId, JobData jobData, Mapper mapper, Reducer reducer) {
+    public JobImpl(Uuid userUuid, JobId jobId, JobData jobData, Mapper mapper, Reducer reducer) {
         this.userUuid = userUuid;
         this.jobId = jobId;
         this.jobData = jobData;
