@@ -56,7 +56,17 @@ public interface RemoteCoordinator extends Remote, Identify {
    *
    * @param jobId the JobId of the Job being assigned
    */
-  void assignJob(JobId jobId) throws RemoteException;
+
+  /**
+   * a method to assign a JobId to a JobCoordinator
+   * called by a User
+   * delegates responsibility to its corresponding Coordinator method
+   *
+   * @param jobId the JobId of the Job being assigned
+   * @return true if the job was successfully assigned, false otherwise
+   * @throws RemoteException
+   */
+  boolean assignJob(JobId jobId) throws RemoteException;
 
   /**
    * a method to get an allocation of TaskManagers
