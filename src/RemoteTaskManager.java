@@ -6,6 +6,6 @@ import java.rmi.RemoteException;
  */
 public interface RemoteTaskManager extends Remote, Identify {
   TaskResult performMapTask(Task task) throws RemoteException; // called from a JobManager
-  void submitMapResult(String key, int value);
+  void submitMapResult(String key, int value) throws RemoteException;
   TaskResult performReduceTask(Task task) throws RemoteException;
 }

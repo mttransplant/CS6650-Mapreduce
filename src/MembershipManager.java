@@ -15,8 +15,7 @@ import java.util.Random;
  * enforcing load-balancing policies for how man Coordinators are needed
  */
 public class MembershipManager implements RemoteMembershipManager, Communicate {
-  public static final int MANAGER_PORT = 2099;
-  public static final int CLIENT_PORT = 1099;
+  public static final int MANAGER_PORT = 1099;
   public static final String SERVICE_HOST = "127.0.0.1"; // TODO: establish this
   public static final String SERVICE_NAME = "MEMBERSHIP_MANAGER";
   public static final int MAX_TASK_MANAGERS_PER_JOB = 5;
@@ -41,8 +40,8 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
   /* ---------- RemoteMembershipManager methods ---------- */
 
   @Override
-  public Uuid generateUuid(InetAddress memberAddress) {
-    return new Uuid(memberAddress);
+  public Uuid generateUuid(InetAddress memberAddress, int clientPort) {
+    return new Uuid(memberAddress, clientPort);
   }
 
   @Override
@@ -101,7 +100,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
     System.out.println("Getting remote reference.");
 
-    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.CLIENT_PORT);
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), uuid.getClientPort());
     return registry.lookup(uuid.toString());
   }
 

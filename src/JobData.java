@@ -10,6 +10,8 @@ public class JobData implements Serializable {
         this.jobData = dataSet;
     }
 
+    public long getSize() { return this.jobData.size(); }
+
     public List<String> getJobData() {
         return jobData;
     }
