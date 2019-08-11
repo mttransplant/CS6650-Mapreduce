@@ -11,25 +11,28 @@ import MapReduce.WordCountReducer;
 
 public class LaunchPeer {
   public static void main(String[] args) {
-    Peer peer1 = new Peer(2099);
-    peer1.join();
+    int numPeers = 10;
+    int portBase = 5000;
+    Peer[] peers = new Peer[numPeers];
 
-    Peer peer2 = new Peer(3099);
-    peer2.join();
+    for (int i = 0; i < numPeers; i++) {
+      peers[i] = new Peer(portBase + i);
+      peers[i].join();
+    }
 
     String[] wordArray = "This string has five\nwords.".split("\\W+");
     List<String> wordList = Arrays.asList(wordArray);
 
     JobData jobData = new JobData(wordList);
-    JobId jobId = new JobId(peer2.getUuid(), jobData.getSize());
+    JobId jobId = new JobId(peers[1].getUuid(), jobData.getSize());
     Mapper mapper = new WordCountMapper();
     Reducer reducer = new WordCountReducer();
 
-    peer2.createJob(jobId, jobData, mapper, reducer);
+    peers[0].leave();
+    peers[1].createJob(jobId, jobData, mapper, reducer);
+    peers[1].submitJob(jobId);
 
-    peer2.submitJob(jobId);
-
-    Map<String, JobResult> results = peer2.getResults();
+    Map<String, JobResult> results = peers[1].getResults();
 
     JobResult result;
 
@@ -37,8 +40,5 @@ public class LaunchPeer {
       result = results.get(jobId.getJobIdNumber());
       result.print();
     }
-
-    peer1.leave();
-    peer2.leave();
   }
 }

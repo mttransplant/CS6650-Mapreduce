@@ -18,12 +18,12 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
   public static final int MANAGER_PORT = 1099;
   public static final String SERVICE_HOST = "127.0.0.1"; // TODO: establish this
   public static final String SERVICE_NAME = "MEMBERSHIP_MANAGER";
-  public static final int MAX_TASK_MANAGERS_PER_JOB = 5;
+  public static final int MAX_TASK_MANAGERS_PER_JOB = 10;
 
   private final List<RemoteCoordinator> coordinators;
   private final Random randomNumberGenerator;
   private int memberCount;
-  private final int PEERS_PER_COORDINATOR = 10;
+  private final int PEERS_PER_COORDINATOR = 6;
   final static String USER = "user";
   final static String COORDINATOR = "coordinator";
   final static String JOB_MANAGER = "job_manager";
@@ -79,6 +79,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
       index = getIndexOfCoordinator(oldMember);
 
       if (index >= 0) {
+
         this.coordinators.remove(index);
       } else {
         for (RemoteCoordinator rc : this.coordinators) {
@@ -92,6 +93,11 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
     } else if (tooManyCoordinators()) {
       removeACoordinator();
     }
+  }
+
+  @Override
+  public Uuid getNewCoordinator() throws RemoteException {
+    return getCoordinatorUuid();
   }
 
   /* ---------- Communicate methods ---------- */

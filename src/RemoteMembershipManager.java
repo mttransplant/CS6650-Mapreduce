@@ -44,4 +44,14 @@ public interface RemoteMembershipManager extends Remote {
    * @param uuid the Uuid of the User to be removed
    */
   void removeMember(Uuid uuid)  throws RemoteException, NotBoundException;
+
+
+  /**
+   * a method to get a new Coordinator Uuid
+   * called by a User
+   *
+   * @return the Uuid of a Coordinator
+   * @throws RemoteException
+   */
+  Uuid getNewCoordinator() throws RemoteException;
 }

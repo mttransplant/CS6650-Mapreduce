@@ -33,6 +33,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private boolean isCoordinator;
   private ExecutorService taskExecutor;
   private Random random;
+  private Registry localRegistry;
 
   public Peer(int clientPort) {
     this.clientPort = clientPort;
@@ -54,12 +55,10 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       this.uuid = this.service.generateUuid(InetAddress.getLocalHost(), this.clientPort);
 
       // create a local registry... or simply get it if it already exists
-      Registry localRegistry;
-
       try {
-        localRegistry = LocateRegistry.createRegistry(this.clientPort);
+        this.localRegistry = LocateRegistry.createRegistry(this.clientPort);
       } catch (RemoteException re) {
-        localRegistry = LocateRegistry.getRegistry(this.clientPort);
+        this.localRegistry = LocateRegistry.getRegistry(this.clientPort);
       }
 
       // create references to the Remote Peer interface
@@ -69,7 +68,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       RemotePeer peerStub = (RemotePeer) UnicastRemoteObject.exportObject(peer, this.clientPort);
 
       // register this Peer as a RemotePeer
-      localRegistry.rebind(getUuid().toString(), peerStub);
+      this.localRegistry.rebind(getUuid().toString(), peerStub);
     } catch (UnknownHostException uhe) {
       // TODO: handle this exception better?
       System.out.println(String.format("UnkownHoustException encountered launching Peer: %s", uhe.getMessage()));
@@ -102,11 +101,34 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public void submitJob(JobId jobId) {
+    boolean attemptSuccessful;
+
     try {
-      this.coordinator.assignJob(jobId);
-    } catch (RemoteException re) {
-      // TODO: get a new coordinator from the MembershipManager
-      // TODO: ping coordinator (as user)... if dead, forcibly remove (perform this "service" on behalf of the network
+      attemptSuccessful = this.coordinator.assignJob(jobId);
+
+      while(!attemptSuccessful) { // if the coordinator has been decommissioned but is still an active peer
+        // get new coordinator
+        Uuid coord = this.service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+
+        // try again (recurse)
+        attemptSuccessful = this.coordinator.assignJob(jobId);
+      }
+    } catch (RemoteException | NotBoundException ex1) { // if the coordinator has crashed or left the network
+      try {
+        // have MembershipManager remove old (dead) coordinator
+        this.service.removeMember(this.coordinator.getUuid());
+
+        // get new coordinator
+        Uuid coord = this.service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+
+        // try again (recurse)
+        submitJob(jobId);
+      } catch (RemoteException | NotBoundException ex2) {
+        // TODO: determine if a better action is needed here
+        System.out.println("Sorry, but your job couldn't be processed at this time; please re-submit later.");
+      }
     }
   }
 
@@ -123,6 +145,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   @Override
   public void leave() {
     try {
+      this.isCoordinator = false;
+      this.localRegistry.unbind(getUuid().toString());
       this.service.removeMember(this.uuid);
     } catch (RemoteException | NotBoundException ex) {
       // TODO: figure out if this exception needs to be caught and, if so, what needs to happen in the catch clause
@@ -227,11 +251,12 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   @Override
-  public void assignJob(JobId jobId) {
+  public boolean assignJob(JobId jobId) {
     if (this.isCoordinator) {
       assignJobToJobManager(jobId);
+      return true;
     } else {
-      // TODO: handle case where the User's coordinator is no longer active
+      return false;
     }
   }
 
