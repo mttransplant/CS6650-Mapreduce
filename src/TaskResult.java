@@ -5,10 +5,7 @@ import java.io.Serializable;
  * the JobManager that submitted a Task
  *
  */
-
 public interface TaskResult extends Serializable {
-
-
     /**
      * a method to retrieve the TaskId.
      * called by the JobManager to track which tasks have completed and which

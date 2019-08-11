@@ -1,20 +1,24 @@
 package MapReduce;
 
+import java.io.Serializable;
+import java.util.Map;
+
 /**
  * an interface to represent the map function
  */
-public interface Mapper {
+public interface Mapper extends Serializable {
     /**
      * Map function
-     * @param line input line
-     * @return key-value pair
+     * @param line input
+     * @param map an aggregate map
      */
-    Pair map(String line);
+    void map(String line, Map<String, Integer> map);
 
 
     /**
      * Partition function
-     * @return
+     * @param key Mapper key
+     * @return partition key
      */
-    int getPartition(Pair pair);
+    int getPartition(String key);
 }

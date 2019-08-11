@@ -1,3 +1,7 @@
+import MapReduce.Mapper;
+import MapReduce.Pair;
+import MapReduce.Reducer;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.rmi.NotBoundException;
@@ -15,43 +19,56 @@ import java.util.concurrent.*;
  */
 
 public class Peer implements User, Coordinator, JobManager, TaskManager, RemotePeer {
+  private int clientPort;
   private RemoteMembershipManager service;
   private Uuid uuid;
   private RemoteCoordinator coordinator;
-  private final Map<String, Uuid> availablePeers;
-  private List<Job> jobs;
-  private List<JobId> submittedJobIds;
-  private List<JobResult> unDeliveredJobResults;
+  private final List<Uuid> availablePeers;
+  private Map<String, Job> userJobs;
+  private List<JobId> managedJobIds;
+  private Map<String, JobResult> jobResults;
+  private Map<String, JobResult> unDeliveredJobResults;
+  private List<Uuid> reducerIds;
+  private List<Pair> mapResults;
   private boolean isCoordinator;
-  private ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
+  private ExecutorService taskExecutor;
+  private Random random;
+  private Registry localRegistry;
 
-  public Peer() {
-    this.availablePeers = new HashMap<>();
+  public Peer(int clientPort) {
+    this.clientPort = clientPort;
+    this.availablePeers = new LinkedList<>();
+    this.userJobs = new HashMap<>();
+    this.managedJobIds = new LinkedList<>();
+    this.jobResults = new HashMap<>();
+    this.unDeliveredJobResults = new HashMap<>();
+    this.reducerIds = new LinkedList<>();
+    this.mapResults = new LinkedList<>();
     this.isCoordinator = false;
+    this.taskExecutor = Executors.newFixedThreadPool(5);
+    this.random = new Random();
 
     try {
       // connect to the MembershipService and get a Uuid
       Registry remoteRegistry = LocateRegistry.getRegistry(MembershipManager.SERVICE_HOST, MembershipManager.MANAGER_PORT);
       this.service = (RemoteMembershipManager) remoteRegistry.lookup(MembershipManager.SERVICE_NAME);
-      this.uuid = this.service.generateUuid(InetAddress.getLocalHost());
+      this.uuid = this.service.generateUuid(InetAddress.getLocalHost(), this.clientPort);
 
       // create a local registry... or simply get it if it already exists
-      Registry localRegistry;
-
       try {
-        localRegistry = LocateRegistry.createRegistry(MembershipManager.CLIENT_PORT);
+        this.localRegistry = LocateRegistry.createRegistry(this.clientPort);
       } catch (RemoteException re) {
-        localRegistry = LocateRegistry.getRegistry(MembershipManager.CLIENT_PORT);
+        this.localRegistry = LocateRegistry.getRegistry(this.clientPort);
       }
 
       // create references to the Remote Peer interface
       RemotePeer peer = this;
 
       // get a stub for this Remote Peer
-      RemotePeer peerStub = (RemotePeer) UnicastRemoteObject.exportObject(peer, MembershipManager.CLIENT_PORT);
+      RemotePeer peerStub = (RemotePeer) UnicastRemoteObject.exportObject(peer, this.clientPort);
 
       // register this Peer as a RemotePeer
-      localRegistry.rebind(getUuid().toString(), peerStub);
+      this.localRegistry.rebind(getUuid().toString(), peerStub);
     } catch (UnknownHostException uhe) {
       // TODO: handle this exception better?
       System.out.println(String.format("UnkownHoustException encountered launching Peer: %s", uhe.getMessage()));
@@ -77,18 +94,59 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   @Override
+  public void createJob(JobId jobId, JobData data, Mapper mapper, Reducer reducer) {
+    Job job = new JobImpl(this.uuid, jobId, data, mapper, reducer);
+    this.userJobs.put(jobId.getJobIdNumber(), job);
+  }
+
+  @Override
   public void submitJob(JobId jobId) {
+    boolean attemptSuccessful;
+
     try {
-      this.coordinator.assignJob(jobId);
-    } catch (RemoteException re) {
-      // TODO: get a new coordinator from the MembershipManager
-      // TODO: ping coordinator (as user)... if dead, forcibly remove (perform this "service" on behalf of the network
+      attemptSuccessful = this.coordinator.assignJob(jobId);
+
+      while(!attemptSuccessful) { // if the coordinator has been decommissioned but is still an active peer
+        // get new coordinator
+        Uuid coord = this.service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+
+        // try again (recurse)
+        attemptSuccessful = this.coordinator.assignJob(jobId);
+      }
+    } catch (RemoteException | NotBoundException ex1) { // if the coordinator has crashed or left the network
+      try {
+        // have MembershipManager remove old (dead) coordinator
+        this.service.removeMember(this.coordinator.getUuid());
+
+        // get new coordinator
+        Uuid coord = this.service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+
+        // try again (recurse)
+        submitJob(jobId);
+      } catch (RemoteException | NotBoundException ex2) {
+        // TODO: determine if a better action is needed here
+        System.out.println("Sorry, but your job couldn't be processed at this time; please re-submit later.");
+      }
     }
+  }
+
+  @Override
+  public Map<String, Job> getJobs() {
+    return this.userJobs;
+  }
+
+  @Override
+  public Map<String, JobResult> getResults() {
+    return this.jobResults;
   }
 
   @Override
   public void leave() {
     try {
+      this.isCoordinator = false;
+      this.localRegistry.unbind(getUuid().toString());
       this.service.removeMember(this.uuid);
     } catch (RemoteException | NotBoundException ex) {
       // TODO: figure out if this exception needs to be caught and, if so, what needs to happen in the catch clause
@@ -99,8 +157,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public Job getJob(JobId jobId) {
-    // TODO: implement this functionality to be used from within a JobManager
-    return null;
+    return this.userJobs.get(jobId.getJobIdNumber());
   }
 
   @Override
@@ -128,7 +185,16 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public void assignJobToJobManager(JobId jobId) {
-    // TODO: implement functionality to pick a JobManager and assign the Job
+    // TODO: for now, this just picks a random Peer as the job manager
+    int index = this.random.nextInt(this.availablePeers.size());
+    Uuid selected = this.availablePeers.get(index);
+    try {
+      RemoteJobManager jobManager = (RemoteJobManager) getRemoteRef(selected, MembershipManager.JOB_MANAGER);
+      jobManager.manageJob(jobId);
+    } catch (RemoteException | NotBoundException ex){
+      // TODO: determine if recursion is safe here???
+      assignJobToJobManager((jobId));
+    }
   }
 
   /* ---------- RemoteCoordinator methods ---------- */
@@ -137,7 +203,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   public void addPeer(Uuid peer) {
     synchronized (this.availablePeers) {
       System.out.println("A peer is being added.");
-      this.availablePeers.put(peer.toString(), peer);
+      this.availablePeers.add(peer);
     }
   }
 
@@ -145,62 +211,98 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   public void removePeer(Uuid peer) {
     System.out.println("A peer is being removed.");
     synchronized (this.availablePeers) {
-      this.availablePeers.remove(peer.toString());
+      this.availablePeers.remove(peer);
     }
   }
 
   @Override
   public Uuid getActivePeer() {
-    // iterate through available peers, return first "live" peer, remove "dead" peers
-    for (String uuid : this.availablePeers.keySet()) {
-      try {
-        RemoteUser user = (RemoteUser) getRemoteRef(this.availablePeers.get(uuid), MembershipManager.USER);
-        return user.getUuid();
-      } catch (RemoteException | NotBoundException ex1) {
+    synchronized (this.availablePeers) {
+      // iterate randomly through available peers, return first "live" peer, remove any encountered "dead" peers
+      while(true) {
+        int index = random.nextInt(this.availablePeers.size());
+
         try {
-          this.service.removeMember(this.availablePeers.get(uuid));
-        } catch (RemoteException | NotBoundException ex2) {
-          // TODO: handle this exception
+          RemoteUser user = (RemoteUser) getRemoteRef(this.availablePeers.get(index), MembershipManager.USER);
+          return user.getUuid();
+        } catch (RemoteException | NotBoundException ex1) {
+          try {
+            this.service.removeMember(this.availablePeers.get(index));
+          } catch (RemoteException | NotBoundException ex2) {
+            // TODO: handle this exception
+          }
         }
       }
     }
 
-    // TODO: handle situation where there are no active peers
+    // TODO: handle situation where there are no active peers-- currently infinite recursion!!!
     // TODO: beware of peer pinging itself; is this all right?
-    return null;
   }
 
   @Override
-  public Map<String, Uuid> getActivePeers() {
-    return new HashMap<>(this.availablePeers);
+  public List<Uuid> getActivePeers() {
+    return new LinkedList<>(this.availablePeers);
   }
 
   @Override
-  public void setActivePeers(Map<String, Uuid> activePeers) {
+  public void setActivePeers(List<Uuid> activePeers) {
     this.availablePeers.clear();
-    this.availablePeers.putAll(activePeers);
+    this.availablePeers.addAll(activePeers);
   }
 
   @Override
-  public void assignJob(JobId jobId) {
-    if (!this.isCoordinator) {
-      // TODO: throw an exception to let the User know its coordinator is no longer a Coordinator
+  public boolean assignJob(JobId jobId) {
+    if (this.isCoordinator) {
+      assignJobToJobManager(jobId);
+      return true;
     } else {
-      // TODO: implement this functionality to be called by a User
+      return false;
     }
   }
 
   @Override
-  public List<RemoteTaskManager> getTaskManagers() {
-    // TODO: implement this functionality to be called by a JobManager
-    // TODO: Can this accept an int for the number of TaskManagers to return?
-    return null;
+  public List<RemoteTaskManager> getTaskManagers(int numRequested) {
+    List<RemoteTaskManager> taskManagers = new LinkedList<>();
+    int numToReturn;
+    Uuid toBeRemoved;
+
+    synchronized (this.availablePeers) {
+      if (numRequested < availablePeers.size() && numRequested < MembershipManager.MAX_TASK_MANAGERS_PER_JOB) {
+        numToReturn = numRequested;
+      } else {
+        numToReturn = Math.min(this.availablePeers.size(), MembershipManager.MAX_TASK_MANAGERS_PER_JOB);
+      }
+
+      int[] indexes = ThreadLocalRandom.current().ints(0, this.availablePeers.size()).limit(numToReturn).toArray();
+
+      int i = 0;
+
+      try {
+        while (i < indexes.length) {
+          RemoteTaskManager rtm = (RemoteTaskManager) getRemoteRef(this.availablePeers.get(i), MembershipManager.TASK_MANAGER);
+          taskManagers.add(rtm);
+          i++;
+        }
+        return taskManagers;
+      } catch (RemoteException | NotBoundException ex) {
+        toBeRemoved = this.availablePeers.get(i);
+      }
+    }
+
+    try {
+      this.service.removeMember(toBeRemoved);
+    } catch (RemoteException | NotBoundException ex2) {
+      // TODO: determine if something needs to be done here
+    }
+
+    // recurse after "dead" peer has been removed from the list of available peers
+    return getTaskManagers(numRequested);
   }
 
   /* ---------- JobManager methods ---------- */
 
   @Override
-  public Job retrieveJob(JobId jobId) throws RemoteException, NotBoundException{
+  public Job retrieveJob(JobId jobId) throws RemoteException, NotBoundException {
     try {
       RemoteUser user = (RemoteUser) getRemoteRef(jobId.getSubmitter(),MembershipManager.USER);
       return user.getJob(jobId);
@@ -221,14 +323,16 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // establish the completion service that will be used to submit a task to the TaskManager
   private CompletionService<TaskResult> establishTaskCompletionService(List<RemoteTaskManager> rtmList, List<Task> taskList) {
-    CompletionService<TaskResult> completionService = new ExecutorCompletionService<>(taskExecutor);
+    CompletionService<TaskResult> completionService = new ExecutorCompletionService<>(this.taskExecutor);
+
     for (Task task : taskList) {
       RemoteTaskManager rtm = nextRtm(rtmList);
+
       completionService.submit(new Callable<TaskResult>() {
         public TaskResult call() throws InterruptedException{
           TaskResult tr;
           try {
-            tr = rtm.performTask(task);
+            tr = rtm.performMapTask(task);
           } catch (RemoteException e) {
             System.out.println("JobManager.establishTaskCompletionService Remote Exception: " + e.getMessage());
             throw new InterruptedException("establishTaskCompletionService: RemoteException: " + e.getMessage());
@@ -237,6 +341,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
         }
       });
     }
+
     return completionService;
   }
 
@@ -246,7 +351,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     Future<TaskResult> r;
 
     try {
-      for (int t = 0; t<tasksSize; t++ ) {
+      for (int t = 0; t < tasksSize; t++ ) {
         r = completionService.take();
         TaskResult tr = r.get(Task.TIMEOUT, TimeUnit.SECONDS);
         responses.add(tr);
@@ -267,6 +372,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     CompletionService<TaskResult> completionService = establishTaskCompletionService(rtmList, tasks);
     List<TaskResult> taskResultList = executeTaskCompletionService(completionService, tasks.size());
     List<Task> missingTasks = checkAllTasksReturned(tasks, taskResultList);
+
+    // TODO: (Dan thinks)-- rework this so that it just resubmits the whole job if any tasks weren't returned
     while (missingTasks.size() > 0) {
       completionService = establishTaskCompletionService(rtmList, missingTasks);
       List<TaskResult> moreTaskResults = executeTaskCompletionService(completionService, missingTasks.size());
@@ -283,7 +390,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       RemoteUser user = (RemoteUser) getRemoteRef(jobResult.getUserUuid(), MembershipManager.USER);
       user.setJobResult(jobResult.getJobId(), jobResult);
     } catch (RemoteException | NotBoundException e) {
-      unDeliveredJobResults.add(jobResult);
+      this.unDeliveredJobResults.put(jobResult.getJobId().getJobIdNumber(), jobResult);
       System.out.println("JobManager.returnResults: Unable to deliver results. Saving results for future delivery.");
     }
   }
@@ -292,7 +399,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   public List<RemoteTaskManager> requestTaskManagers() {
     List<RemoteTaskManager> rtms = null;
     try {
-      rtms = coordinator.getTaskManagers();
+      // TODO: determine if we want to pass in a different number based on the size of the job
+      rtms = this.coordinator.getTaskManagers(MembershipManager.MAX_TASK_MANAGERS_PER_JOB);
     } catch (RemoteException re) {
       System.out.println("JobManager.requestTaskManagers: Unable to reach coordinator");
       // TODO: Need a way to request a different Coordinator
@@ -320,7 +428,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private List<Task> splitJobToTasks(Job job) {
     List<Task> taskList = new ArrayList<>();
     List<JobData> splitData = job.getSplitData(1000);
-    TaskId taskId = new TaskId(job.getUserUuid(),job.getJobId());
+    TaskId taskId = new TaskId(job.getUserUuid(), job.getJobId());
+
     for (JobData jd : splitData) {
       Task task = new TaskImpl(taskId, job.getUserUuid(), this.uuid, jd, job.getMapper(), job.getReducer());
       taskList.add(task);
@@ -330,8 +439,9 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   synchronized private void processJobIdQueue() {
-    while (submittedJobIds.size() > 0) {
-      JobId jobId = submittedJobIds.get(0);
+    while (this.managedJobIds.size() > 0) {
+      JobId jobId = this.managedJobIds.get(0);
+
       try {
         Job job = retrieveJob(jobId);
         List<Task> taskList = splitJobToTasks(job);
@@ -342,7 +452,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       } catch (RemoteException | NotBoundException e) {
         System.out.println("JobManager.processJobIdQueue: Unable to reach user to return job. JobId removed from queue. " + e.getMessage());
       }
-      submittedJobIds.remove(0);
+
+      this.managedJobIds.remove(0);
     }
   }
 
@@ -357,18 +468,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public void manageJob(JobId jobId) {
-    // TODO: implement this functionality to be called by a Coordinator
-    submittedJobIds.add(jobId);
+    this.managedJobIds.add(jobId);
     processJobIdQueue();
-  }
-
-  // TODO DISCUSS: remove this?
-  // the executor + Completion service expects that the RMI call return a result
-  // in that case, the TaskManager shouldn't be making a separate call back to
-  // JobManager to submit the results.
-  @Override
-  public void submitTaskResult(TaskResult taskResult) {
-    // TODO: implement this functionality to be used from within a TaskManager
   }
 
   /* ---------- TaskManager methods ---------- */
@@ -378,8 +479,48 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   /* ---------- RemoteTaskManager methods ---------- */
 
   @Override
-  public TaskResult performTask(Task task) {
-    // TODO: implement this functionality to be used from within a JobManager
+  public TaskResult performMapTask(Task task) {
+    // Mapping Phase
+    Mapper mapper = task.getMapper();
+    Map<String, Integer> map = new HashMap<>();
+
+    for (String line : task.getDataset().getJobData()) {
+      mapper.map(line, map);
+    }
+
+    for (String key : map.keySet()) {
+      int partition = mapper.getPartition(key);
+
+      try {
+        RemoteTaskManager reducer = (RemoteTaskManager) getRemoteRef(this.reducerIds.get(partition), MembershipManager.TASK_MANAGER);
+        reducer.submitMapResult(key, map.get(key)); // submit results to corresponding reducer
+      } catch (NotBoundException e) {
+        System.out.println("TaskManager.performMapTask NotBoundException: " + e.getMessage());
+      } catch (RemoteException e) {
+        System.out.println("TaskManager.performMapTask RemoteException: " + e.getMessage());
+      }
+    }
+
+    // TODO: Return TaskResult object to JobManager
+    return null;
+  }
+
+  @Override
+  public void submitMapResult(String key, int value) {
+    if (mapResults == null) {
+      mapResults = new ArrayList<>();
+    }
+    mapResults.add(new Pair(key, value));
+  }
+
+  @Override
+  public TaskResult performReduceTask(Task task) {
+    // Reduce Phase
+    Reducer reducer = task.getReducer();
+    Map<String, Integer> map = new HashMap<>();
+    reducer.reduce(mapResults, map);
+
+    // TODO: return final aggregate result to JobManager
     return null;
   }
 
@@ -387,7 +528,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
-    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.CLIENT_PORT);
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), uuid.getClientPort());
     return registry.lookup(uuid.toString());
 //    return registry.lookup(uuid.toString() + peerRole);
   }

@@ -39,7 +39,7 @@ public interface Job extends Serializable {
      */
     JobData getDataset();
 
-    public List<JobData> getSplitData(int splitSize);
+    List<JobData> getSplitData(int splitSize);
 
     /**
      * a method to retrieve the MapReduce.Mapper function object that the user provided

@@ -36,18 +36,18 @@ public interface RemoteCoordinator extends Remote, Identify {
   Uuid getActivePeer() throws RemoteException;
 
   /**
-   * a method to get the map of active Peers from this RemoteCoordinator
+   * a method to get the list of active Peers from this RemoteCoordinator
    * called by the MembershipManager when bringing new RemoteCoordinators online
    *
-   * @return the map of available Uuids from this RemoteCoordinator
+   * @return the list of available Uuids from this RemoteCoordinator
    */
-  Map<String, Uuid> getActivePeers() throws RemoteException;
+  List<Uuid> getActivePeers() throws RemoteException;
 
   /**
    * a method to set the map of active Peers for this RemoteCoordinator
    * called by the MembershipManager when bringing new RemoteCoordinators online
    */
-  void setActivePeers(Map<String, Uuid> activePeers) throws RemoteException;
+  void setActivePeers(List<Uuid> activePeers) throws RemoteException;
 
   /**
    * a method to assign a JobId to a JobCoordinator
@@ -56,13 +56,25 @@ public interface RemoteCoordinator extends Remote, Identify {
    *
    * @param jobId the JobId of the Job being assigned
    */
-  void assignJob(JobId jobId) throws RemoteException;
+
+  /**
+   * a method to assign a JobId to a JobCoordinator
+   * called by a User
+   * delegates responsibility to its corresponding Coordinator method
+   *
+   * @param jobId the JobId of the Job being assigned
+   * @return true if the job was successfully assigned, false otherwise
+   * @throws RemoteException
+   */
+  boolean assignJob(JobId jobId) throws RemoteException;
 
   /**
    * a method to get an allocation of TaskManagers
    * called by a JobManager
    *
+   * @param numRequested the number of TaskManagers being requested by the JobManager
    * @return a list of RemoteTaskManagers to be used by the calling JobManager
+   * @throws RemoteException
    */
-  List<RemoteTaskManager> getTaskManagers() throws RemoteException;
+  List<RemoteTaskManager> getTaskManagers(int numRequested) throws RemoteException;
 }

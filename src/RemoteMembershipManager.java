@@ -19,7 +19,7 @@ public interface RemoteMembershipManager extends Remote {
    * @param memberAddress InetAddress of the User requesting a Uuid
    * @return a newly generated Uuid for the invoking new User
    */
-  Uuid generateUuid(InetAddress memberAddress) throws RemoteException;
+  Uuid generateUuid(InetAddress memberAddress, int clientPort) throws RemoteException;
 
   /**
    * a method to register a new User with the network
@@ -44,4 +44,14 @@ public interface RemoteMembershipManager extends Remote {
    * @param uuid the Uuid of the User to be removed
    */
   void removeMember(Uuid uuid)  throws RemoteException, NotBoundException;
+
+
+  /**
+   * a method to get a new Coordinator Uuid
+   * called by a User
+   *
+   * @return the Uuid of a Coordinator
+   * @throws RemoteException
+   */
+  Uuid getNewCoordinator() throws RemoteException;
 }
