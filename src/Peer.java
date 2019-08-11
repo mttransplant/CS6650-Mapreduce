@@ -29,7 +29,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private Map<String, JobResult> jobResults;
   private Map<String, JobResult> unDeliveredJobResults;
   private List<Uuid> reducerIds;
-  private List<Pair> mapResults;
+  private List<Map.Entry<String, Integer>> mapResults;
   private boolean isCoordinator;
   private ExecutorService taskExecutor;
   private Random random;
@@ -510,7 +510,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     if (mapResults == null) {
       mapResults = new ArrayList<>();
     }
-    mapResults.add(new Pair(key, value));
+    mapResults.add(new HashMap.SimpleEntry<>(key, value));
   }
 
   @Override
