@@ -1,3 +1,5 @@
+import java.util.Map;
+
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 
@@ -34,6 +36,20 @@ public interface User extends Communicate {
    * @param jobId a universally unique identifier for the job to be submitted
    */
   void submitJob(JobId jobId);
+
+  /**
+   * a method that returns the map of this user's created jobs
+   *
+   * @return a map of this user's created jobs
+   */
+  Map<String, Job> getJobs();
+
+  /**
+   * a mehtod that returns the map of this user's job results
+   *
+   * @return a map of this user's job results
+   */
+  Map<String, JobResult> getResults();
 
   /**
    * a method that allows this User to leave the sevice

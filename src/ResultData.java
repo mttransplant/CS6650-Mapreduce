@@ -15,5 +15,12 @@ public class ResultData implements Serializable {
         return resultData;
     }
 
+    public void print() {
+        System.out.println("word : number of times word appeared in document");
+        for (String word : resultData.keySet()) {
+            System.out.println(String.format("%s : %d", word, resultData.get(word)));
+        }
+    }
+
     // splitResultData not needed. The results from the TaskManagers will only be merged.
 }

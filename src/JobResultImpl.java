@@ -1,5 +1,3 @@
-import java.io.Serializable;
-
 public class JobResultImpl implements JobResult {
     private Job job;
     private String status;
@@ -25,5 +23,12 @@ public class JobResultImpl implements JobResult {
 
     public ResultData getResults() {
         return this.resultData;
+    }
+
+    @Override
+    public void print() {
+        System.out.println(String.format("Results for job %s...\n", job.getJobId().getJobIdNumber()));
+        resultData.print();
+        System.out.println();
     }
 }

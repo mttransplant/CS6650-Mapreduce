@@ -12,7 +12,6 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.stream.IntStream;
 
 /**
  * 1. aggregate: mergeTaskResults()... establish a delegate for this method should be established in the Job and/or Reduce interface (Nay)
@@ -20,6 +19,7 @@ import java.util.stream.IntStream;
  */
 
 public class Peer implements User, Coordinator, JobManager, TaskManager, RemotePeer {
+  private int clientPort;
   private RemoteMembershipManager service;
   private Uuid uuid;
   private RemoteCoordinator coordinator;
@@ -34,7 +34,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private ExecutorService taskExecutor;
   private Random random;
 
-  public Peer() {
+  public Peer(int clientPort) {
+    this.clientPort = clientPort;
     this.availablePeers = new LinkedList<>();
     this.userJobs = new HashMap<>();
     this.managedJobIds = new LinkedList<>();
@@ -50,22 +51,22 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       // connect to the MembershipService and get a Uuid
       Registry remoteRegistry = LocateRegistry.getRegistry(MembershipManager.SERVICE_HOST, MembershipManager.MANAGER_PORT);
       this.service = (RemoteMembershipManager) remoteRegistry.lookup(MembershipManager.SERVICE_NAME);
-      this.uuid = this.service.generateUuid(InetAddress.getLocalHost());
+      this.uuid = this.service.generateUuid(InetAddress.getLocalHost(), this.clientPort);
 
       // create a local registry... or simply get it if it already exists
       Registry localRegistry;
 
       try {
-        localRegistry = LocateRegistry.createRegistry(MembershipManager.CLIENT_PORT);
+        localRegistry = LocateRegistry.createRegistry(this.clientPort);
       } catch (RemoteException re) {
-        localRegistry = LocateRegistry.getRegistry(MembershipManager.CLIENT_PORT);
+        localRegistry = LocateRegistry.getRegistry(this.clientPort);
       }
 
       // create references to the Remote Peer interface
       RemotePeer peer = this;
 
       // get a stub for this Remote Peer
-      RemotePeer peerStub = (RemotePeer) UnicastRemoteObject.exportObject(peer, MembershipManager.CLIENT_PORT);
+      RemotePeer peerStub = (RemotePeer) UnicastRemoteObject.exportObject(peer, this.clientPort);
 
       // register this Peer as a RemotePeer
       localRegistry.rebind(getUuid().toString(), peerStub);
@@ -107,6 +108,16 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       // TODO: get a new coordinator from the MembershipManager
       // TODO: ping coordinator (as user)... if dead, forcibly remove (perform this "service" on behalf of the network
     }
+  }
+
+  @Override
+  public Map<String, Job> getJobs() {
+    return this.userJobs;
+  }
+
+  @Override
+  public Map<String, JobResult> getResults() {
+    return this.jobResults;
   }
 
   @Override
@@ -287,9 +298,11 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // establish the completion service that will be used to submit a task to the TaskManager
   private CompletionService<TaskResult> establishTaskCompletionService(List<RemoteTaskManager> rtmList, List<Task> taskList) {
-    CompletionService<TaskResult> completionService = new ExecutorCompletionService<>(taskExecutor);
+    CompletionService<TaskResult> completionService = new ExecutorCompletionService<>(this.taskExecutor);
+
     for (Task task : taskList) {
       RemoteTaskManager rtm = nextRtm(rtmList);
+
       completionService.submit(new Callable<TaskResult>() {
         public TaskResult call() throws InterruptedException{
           TaskResult tr;
@@ -303,6 +316,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
         }
       });
     }
+
     return completionService;
   }
 
@@ -312,7 +326,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     Future<TaskResult> r;
 
     try {
-      for (int t = 0; t<tasksSize; t++ ) {
+      for (int t = 0; t < tasksSize; t++ ) {
         r = completionService.take();
         TaskResult tr = r.get(Task.TIMEOUT, TimeUnit.SECONDS);
         responses.add(tr);
@@ -444,6 +458,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     // Mapping Phase
     Mapper mapper = task.getMapper();
     Map<String, Integer> map = new HashMap<>();
+
     for (String line : task.getDataset().getJobData()) {
       mapper.map(line, map);
     }
@@ -452,7 +467,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       int partition = mapper.getPartition(key);
 
       try {
-        RemoteTaskManager reducer = (RemoteTaskManager) getRemoteRef(reducerIds.get(partition), MembershipManager.TASK_MANAGER);
+        RemoteTaskManager reducer = (RemoteTaskManager) getRemoteRef(this.reducerIds.get(partition), MembershipManager.TASK_MANAGER);
         reducer.submitMapResult(key, map.get(key)); // submit results to corresponding reducer
       } catch (NotBoundException e) {
         System.out.println("TaskManager.performMapTask NotBoundException: " + e.getMessage());
@@ -488,7 +503,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
-    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), MembershipManager.CLIENT_PORT);
+    Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), uuid.getClientPort());
     return registry.lookup(uuid.toString());
 //    return registry.lookup(uuid.toString() + peerRole);
   }

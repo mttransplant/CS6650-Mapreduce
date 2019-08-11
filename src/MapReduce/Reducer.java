@@ -1,12 +1,13 @@
 package MapReduce;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 /**
  * an interface to represent the reduce function
  */
-public interface Reducer {
+public interface Reducer extends Serializable {
 
     /**
      * Reduce function'
