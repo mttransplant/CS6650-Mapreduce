@@ -9,8 +9,9 @@ public interface RemoteJobManager extends Remote, Identify {
   // called from a Coordinator, initiates task execution, delegates back
   // to RemoteCoordinator for RemoteTaskManager allocation
   // TODO: Clarify why a Coordinator wants to get the JobResult?
-  JobResult manageJob(JobId jobId) throws RemoteException;
+  void manageJob(JobId jobId) throws RemoteException;
 
+  // TODO: delete if it's really not being used, which we think it's not... since the executor and completion service handle this
   // called from a TaskManager, initiates the return of the TaskManager's processing
   void submitTaskResult(TaskResult taskResult) throws RemoteException;
 }
