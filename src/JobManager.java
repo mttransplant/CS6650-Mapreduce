@@ -24,6 +24,10 @@ public interface JobManager extends Communicate {
     // called to return the JobResults back to the RemoteUser
     void returnResults(JobResult jobResult);
 
-    // called to get a list of available TaskManagers from the Coordinator
-    List<RemoteTaskManager> requestTaskManagers();
+    /**
+     * Called to get a list of available TaskManagers from the Coordinator
+     * @param num Number ofTaskMangers to request
+     * @return List of RemoteTaskManagers
+     */
+    List<RemoteTaskManager> requestTaskManagers(int num);
 }

@@ -322,8 +322,18 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   // establish the completion service that will be used to submit a task to the TaskManager
-  private CompletionService<TaskResult> establishTaskCompletionService(List<RemoteTaskManager> rtmList, List<Task> taskList) {
+  private CompletionService<TaskResult> establishTaskCompletionService(List<RemoteTaskManager> rtmList, List<Task> taskList, boolean isMapTask) {
     CompletionService<TaskResult> completionService = new ExecutorCompletionService<>(this.taskExecutor);
+
+    if (isMapTask) {
+      for (RemoteTaskManager m : rtmList) {
+        try {
+          m.setReducerIds(reducerIds);
+        } catch (Exception ex) {
+          ex.printStackTrace();
+        }
+      }
+    }
 
     for (Task task : taskList) {
       RemoteTaskManager rtm = nextRtm(rtmList);
@@ -332,7 +342,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
         public TaskResult call() throws InterruptedException{
           TaskResult tr;
           try {
-            tr = rtm.performMapTask(task);
+            tr = isMapTask ? rtm.performMapTask(task, reducerIds.size()) : rtm.performReduceTask(task);
           } catch (RemoteException e) {
             System.out.println("JobManager.establishTaskCompletionService Remote Exception: " + e.getMessage());
             throw new InterruptedException("establishTaskCompletionService: RemoteException: " + e.getMessage());
@@ -368,20 +378,34 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public List<TaskResult> submitTasks(List<Task> tasks) {
-    List<RemoteTaskManager> rtmList = requestTaskManagers();
-    CompletionService<TaskResult> completionService = establishTaskCompletionService(rtmList, tasks);
+    List<RemoteTaskManager> mapRtms = requestTaskManagers(10);
+    List<RemoteTaskManager> reduceRtms = requestTaskManagers(5);
+
+    for (RemoteTaskManager r : reduceRtms) {
+      try {
+        reducerIds.add(r.getUuid());
+      }catch (Exception ex) {
+        ex.printStackTrace();
+      }
+    }
+
+    CompletionService<TaskResult> completionService = establishTaskCompletionService(mapRtms, tasks, true);
     List<TaskResult> taskResultList = executeTaskCompletionService(completionService, tasks.size());
+
     List<Task> missingTasks = checkAllTasksReturned(tasks, taskResultList);
 
     // TODO: (Dan thinks)-- rework this so that it just resubmits the whole job if any tasks weren't returned
     while (missingTasks.size() > 0) {
-      completionService = establishTaskCompletionService(rtmList, missingTasks);
+      completionService = establishTaskCompletionService(mapRtms, missingTasks, true);
       List<TaskResult> moreTaskResults = executeTaskCompletionService(completionService, missingTasks.size());
       taskResultList.addAll(moreTaskResults);
       missingTasks = checkAllTasksReturned(tasks, taskResultList);
     }
 
-    return taskResultList;
+    CompletionService<TaskResult> reduceCompletionService = establishTaskCompletionService(reduceRtms, tasks, false);
+    List<TaskResult> reduceTaskResultList = executeTaskCompletionService(reduceCompletionService, tasks.size());
+
+    return reduceTaskResultList;
   }
 
   @Override
@@ -396,11 +420,14 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   @Override
-  public List<RemoteTaskManager> requestTaskManagers() {
+  public List<RemoteTaskManager> requestTaskManagers(int num) {
+    if (num > MembershipManager.MAX_TASK_MANAGERS_PER_JOB) {
+      num = MembershipManager.MAX_TASK_MANAGERS_PER_JOB;
+    }
     List<RemoteTaskManager> rtms = null;
     try {
       // TODO: determine if we want to pass in a different number based on the size of the job
-      rtms = this.coordinator.getTaskManagers(MembershipManager.MAX_TASK_MANAGERS_PER_JOB);
+      rtms = this.coordinator.getTaskManagers(num);
     } catch (RemoteException re) {
       System.out.println("JobManager.requestTaskManagers: Unable to reach coordinator");
       // TODO: Need a way to request a different Coordinator
@@ -458,9 +485,12 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   private TaskResult mergeTaskResults(List<TaskResult> taskResults) {
-    TaskResult taskResult = null;
-    // TODO: Implement the merge of returned TaskResults into a finalTaskResult
-    return taskResult;
+    Map<String, Integer> aggregate = new HashMap<>();
+
+    for (TaskResult taskResult: taskResults) {
+      aggregate.putAll(taskResult.getResults().getResultData());
+    }
+    return new ReduceTaskResult(aggregate);
   }
 
 
@@ -479,7 +509,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   /* ---------- RemoteTaskManager methods ---------- */
 
   @Override
-  public TaskResult performMapTask(Task task) {
+  public TaskResult performMapTask(Task task, int numReducers) {
     // Mapping Phase
     Mapper mapper = task.getMapper();
     Map<String, Integer> map = new HashMap<>();
@@ -489,7 +519,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     }
 
     for (String key : map.keySet()) {
-      int partition = mapper.getPartition(key);
+      int partition = mapper.getPartition(key, numReducers);
 
       try {
         RemoteTaskManager reducer = (RemoteTaskManager) getRemoteRef(this.reducerIds.get(partition), MembershipManager.TASK_MANAGER);
@@ -520,8 +550,12 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     Map<String, Integer> map = new HashMap<>();
     reducer.reduce(mapResults, map);
 
-    // TODO: return final aggregate result to JobManager
-    return null;
+    return new ReduceTaskResult(map);
+  }
+
+  @Override
+  public void setReducerIds(List<Uuid> uuids) {
+    reducerIds = new ArrayList<>(uuids);
   }
 
   /* ---------- Communicate methods ---------- */
