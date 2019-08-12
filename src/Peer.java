@@ -531,8 +531,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       }
     }
 
-    // TODO: Return TaskResult object to JobManager
-    return null;
+    return new MapTaskResult(map);
   }
 
   @Override
