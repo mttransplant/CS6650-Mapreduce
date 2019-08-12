@@ -356,7 +356,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   // run the executor that will administer the previously established completion services
-  private List<TaskResult> executeTaskCompletionService(CompletionService<TaskResult> completionService, int tasksSize) {
+  private List<TaskResult> executeTaskCompletionService(CompletionService<TaskResult> completionService, int tasksSize) throws InterruptedException, ExecutionException, TimeoutException{
     List<TaskResult> responses = new ArrayList<>();
     Future<TaskResult> r;
 
@@ -368,16 +368,22 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
+      throw e;
     } catch (ExecutionException e) {
       System.out.println("JobManager.executeTaskCompletionService Execution Exception: " + e.getMessage());
+      throw e;
     } catch (TimeoutException e) {
       System.out.println("JobManager.executeTaskCompletionService: TaskManager didn't return results in time.");
+      throw e;
     }
     return responses;
   }
 
   @Override
   public List<TaskResult> submitTasks(List<Task> tasks) {
+    boolean mapIsCompleted = false;
+    boolean reduceIsCompleted = false;
+    List<TaskResult> taskResultList, reduceTaskResultList = new ArrayList<>();
     List<RemoteTaskManager> mapRtms = requestTaskManagers(10);
     List<RemoteTaskManager> reduceRtms = requestTaskManagers(5);
 
@@ -390,20 +396,34 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     }
 
     CompletionService<TaskResult> completionService = establishTaskCompletionService(mapRtms, tasks, true);
-    List<TaskResult> taskResultList = executeTaskCompletionService(completionService, tasks.size());
-
-    List<Task> missingTasks = checkAllTasksReturned(tasks, taskResultList);
-
-    // TODO: (Dan thinks)-- rework this so that it just resubmits the whole job if any tasks weren't returned
-    while (missingTasks.size() > 0) {
-      completionService = establishTaskCompletionService(mapRtms, missingTasks, true);
-      List<TaskResult> moreTaskResults = executeTaskCompletionService(completionService, missingTasks.size());
-      taskResultList.addAll(moreTaskResults);
-      missingTasks = checkAllTasksReturned(tasks, taskResultList);
+    while (!reduceIsCompleted) {
+      try {
+        taskResultList = executeTaskCompletionService(completionService, tasks.size());
+        System.out.println("JobManager.submitTasks completed MapTask of size: " + taskResultList.size());
+        mapIsCompleted = true;
+      } catch (TimeoutException | InterruptedException | ExecutionException e) {
+        System.out.println("JobManager.submitTasks encountered an error executing the MapTask. Will restart Task: " + e.getMessage());
+      }
+      CompletionService<TaskResult> reduceCompletionService = establishTaskCompletionService(reduceRtms, tasks, false);
+      if (mapIsCompleted) {
+        try {
+          reduceTaskResultList = executeTaskCompletionService(reduceCompletionService, tasks.size());
+          reduceIsCompleted = true;
+        } catch (TimeoutException | InterruptedException | ExecutionException e) {
+          System.out.println("JobManager.submitTasks encountered an error executing the ReduceTask. Will restart Task: " + e.getMessage());
+        }
+      }
     }
 
-    CompletionService<TaskResult> reduceCompletionService = establishTaskCompletionService(reduceRtms, tasks, false);
-    List<TaskResult> reduceTaskResultList = executeTaskCompletionService(reduceCompletionService, tasks.size());
+//    List<Task> missingTasks = checkAllTasksReturned(tasks, taskResultList);
+//
+//    // TODO: (Dan thinks)-- rework this so that it just resubmits the whole job if any tasks weren't returned
+//    while (missingTasks.size() > 0) {
+//      completionService = establishTaskCompletionService(mapRtms, missingTasks, true);
+//      List<TaskResult> moreTaskResults = executeTaskCompletionService(completionService, missingTasks.size());
+//      taskResultList.addAll(moreTaskResults);
+//      missingTasks = checkAllTasksReturned(tasks, taskResultList);
+//    }
 
     return reduceTaskResultList;
   }
