@@ -20,5 +20,5 @@ public interface Mapper extends Serializable {
      * @param key Mapper key
      * @return partition key
      */
-    int getPartition(String key);
+    int getPartition(String key, int numReducers);
 }

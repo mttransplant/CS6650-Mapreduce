@@ -14,5 +14,5 @@ public interface Reducer extends Serializable {
      * @param values values from the mapper
      * @param map aggregate map
      */
-    void reduce(List<Pair> values, Map<String, Integer> map);
+    void reduce(List<Map.Entry<String, Integer>> values, Map<String, Integer> map);
 }
