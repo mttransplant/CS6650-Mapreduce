@@ -1,14 +1,12 @@
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * an interface to represent a coordinator of communication amongst peers in a peer-to-peer map/reduce service
  *
  * must maintain a list of Uuids for all available (non-Coordinator) Peers
- * enforces load-balancing policy (work distribution based on Peer capacity)
- * its implementation must provide a constructor that sets its list of available Peers using a pre-existing list
+ * enforces load-balancing policy
  */
 public interface RemoteCoordinator extends Remote, Identify {
   /**
@@ -28,8 +26,8 @@ public interface RemoteCoordinator extends Remote, Identify {
   void removePeer(Uuid peer) throws RemoteException;
 
   /**
-   * a method to get the Uuid of a live Peer in this Coordinator's list of active Peers
-   * remove any dead Peers encountered along the way from the service
+   * a method to get the Uuid of a live Peer in this Coordinator's list of active Peers,
+   * removing any dead Peers encountered along the way from the service
    *
    * @return the Uuid of a live Peer
    */
@@ -48,14 +46,6 @@ public interface RemoteCoordinator extends Remote, Identify {
    * called by the MembershipManager when bringing new RemoteCoordinators online
    */
   void setActivePeers(List<Uuid> activePeers) throws RemoteException;
-
-  /**
-   * a method to assign a JobId to a JobCoordinator
-   * called by a User
-   * delegates responsibility to its corresponding Coordinator method
-   *
-   * @param jobId the JobId of the Job being assigned
-   */
 
   /**
    * a method to assign a JobId to a JobCoordinator
