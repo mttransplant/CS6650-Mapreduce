@@ -4,7 +4,9 @@ import MapReduce.Reducer;
 import java.io.Serializable;
 import java.util.List;
 
-// this class represents all elements of the Job that is submitted by the user
+/**
+ * this class represents all elements of the Job that is submitted by the user
+ */
 public class JobImpl implements Job, Serializable {
     private Uuid userUuid; // retained to link this Job to the submitter
     private JobId jobId; // contains the header information that is relevant for this job

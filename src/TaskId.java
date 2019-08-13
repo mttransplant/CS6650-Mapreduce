@@ -1,7 +1,9 @@
 import java.io.Serializable;
 import java.util.UUID;
 
-// this class contains the "header" information required to track a Task
+/**
+ * this class contains the "header" information required to track a Task
+ */
 public class TaskId implements Serializable {
     private Uuid submitter; // retained to track this Task back to the submitting user
     private JobId jobId; // retained to track this Task back to the associated Job

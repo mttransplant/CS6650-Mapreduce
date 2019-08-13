@@ -2,7 +2,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-// this object encapsulates the results of the Map and Reduce processing in the TaskManager
+/**
+ * this object encapsulates the results of the Map and Reduce processing in the TaskManager
+ */
 public class ResultData implements Serializable {
     private Map<String, Integer> resultData; // the raw Task results from the TaskManager
 

@@ -1,3 +1,7 @@
+/**
+ * This class creates an object that encapsulates all relevant elements for the results of a Job,
+ * ready to be returned to the submitter
+ */
 public class JobResultImpl implements JobResult {
     private Job job;
     private String status;
