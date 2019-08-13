@@ -16,7 +16,7 @@ public interface Mapper extends Serializable {
 
 
     /**
-     * Partition function
+     * Partition function: Returns the partition id of where a particular map result should be sent.
      * @param key Mapper key
      * @return partition key
      */

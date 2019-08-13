@@ -2,7 +2,9 @@ import MapReduce.Mapper;
 import MapReduce.Reducer;
 import java.io.Serializable;
 
-// an object to represent the Task that will be passed from a JobManager to a TaskManager
+/**
+ * an object to represent the Task that will be passed from a JobManager to a TaskManager
+ */
 public class TaskImpl implements Task, Serializable {
     private TaskId taskId; // the "header" information for this Task
     private Uuid userUuid; // the Uuid of the submitter associated with this Task

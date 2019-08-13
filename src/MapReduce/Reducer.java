@@ -10,7 +10,7 @@ import java.util.Map;
 public interface Reducer extends Serializable {
 
     /**
-     * Reduce function'
+     * Reduce function: take the values from the mapper function and aggregates according to the reducer function.
      * @param values values from the mapper
      * @param map aggregate map
      */
