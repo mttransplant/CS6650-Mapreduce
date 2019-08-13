@@ -352,23 +352,6 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
     boolean reduceIsCompleted = false;
     List<TaskResult> taskResultList, reduceTaskResultList = new ArrayList<>();
 
-//    // request the number of TaskManagers in proportion to the size of the list of Tasks
-//    List<RemoteTaskManager> mapRtms = requestTaskManagers(tasks.size());
-//    List<RemoteTaskManager> reduceRtms = requestTaskManagers(Math.max(1, tasks.size()/2));
-//
-//    // extract the Uuids of the TaskManagers that will be assigned as Reducers
-//    List<Uuid> reducerIds = new ArrayList<>();
-//    for (RemoteTaskManager r : reduceRtms) {
-//      try {
-//        reducerIds.add(r.getUuid());
-//      } catch (Exception ex) {
-//        ex.printStackTrace();
-//        throw ex;
-//      }
-//    }
-//
-//    CompletionService<TaskResult> completionService = establishTaskCompletionService(mapRtms, tasks, true, reducerIds);
-
     // attempt to complete both the Map and Reduce processes. Will retry the Map process if it fails before proceeding to the Reduce task
     while (!reduceIsCompleted) {
       // request the number of TaskManagers in proportion to the size of the list of Tasks
@@ -580,7 +563,7 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
 
   @Override
   public TaskResult performMapTask(Task task, List<Uuid> reducerIds) throws RemoteException, NotBoundException {
-    System.out.println(String.format("TaskManager %s is performing its map Task %s for job %s", this.uuid.toString(), task.getTaskId().getTaskId(), task.getTaskId().getJobId().getJobIdNumber()));
+//    System.out.println(String.format("TaskManager %s is performing its map Task %s for job %s", this.uuid.toString(), task.getTaskId().getTaskId(), task.getTaskId().getJobId().getJobIdNumber()));
 
     // Mapping Phase
     Mapper mapper = task.getMapper();
@@ -613,7 +596,7 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
 
   @Override
   public void submitMapResult(String key, int value, JobId jobId) {
-    System.out.println(String.format("TaskManager %s is submitting its MapResult for Job %s", this.uuid.toString(), jobId.getJobIdNumber()));
+//    System.out.println(String.format("TaskManager %s is submitting its MapResult for Job %s", this.uuid.toString(), jobId.getJobIdNumber()));
 
     List<KeyValuePair> list;
 
@@ -630,7 +613,7 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
 
   @Override
   public TaskResult performReduceTask(Task task) {
-    System.out.println(String.format("TaskManager %s is performing its reduce Task %s for Job %s", this.uuid.toString(), task.getTaskId().getTaskId(), task.getTaskId().getJobId().getJobIdNumber()));
+//    System.out.println(String.format("TaskManager %s is performing its reduce Task %s for Job %s", this.uuid.toString(), task.getTaskId().getTaskId(), task.getTaskId().getJobId().getJobIdNumber()));
 
     // Reduce Phase
     Reducer reducer = task.getReducer();
