@@ -361,9 +361,9 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     boolean reduceIsCompleted = false;
     List<TaskResult> taskResultList, reduceTaskResultList = new ArrayList<>();
 
-    // TODO: determine if we want to pass in different numbers based on the size of the job
-    List<RemoteTaskManager> mapRtms = requestTaskManagers(10);
-    List<RemoteTaskManager> reduceRtms = requestTaskManagers(5);
+    // request the number of TaskManagers in proportion to the size of the list of Tasks
+    List<RemoteTaskManager> mapRtms = requestTaskManagers(tasks.size());
+    List<RemoteTaskManager> reduceRtms = requestTaskManagers(tasks.size()/2);
 
     // extract the Uuids of the TaskManagers that will be assigned as Reducers
     List<Uuid> reducerIds = new ArrayList<>();
@@ -393,6 +393,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       if (mapIsCompleted) {
         try {
           // TODO: fix the tasksSize....!!!
+          // TODO Q: Wasn't this corrected today's (8/13/19 call?
           reduceTaskResultList = executeTaskCompletionService(reduceCompletionService, reducerIds.size());
           reduceIsCompleted = true;
         } catch (TimeoutException | InterruptedException | ExecutionException e) {
@@ -425,13 +426,18 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
           rtms.add((RemoteTaskManager) getRemoteRef(uuid, MembershipManager.TASK_MANAGER));
         }
       } catch (RemoteException | NotBoundException ex) {
-        // TODO: determine best course of action if allocated a "dead" TaskManager
-        ex.printStackTrace();
+        System.out.println("JobManager.requestTaskManagers: Unable to reach assigned TaskManager. Moving on without it.");
       }
     } catch (RemoteException re) {
       System.out.println("JobManager.requestTaskManagers: Unable to reach coordinator");
       re.printStackTrace();
-      // TODO: Need a way to request a different Coordinator
+      try {
+        Uuid newCoordinator = service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(newCoordinator, MembershipManager.COORDINATOR);
+      } catch (RemoteException | NotBoundException e) {
+        System.out.println("JobManager.requestTaskManagers: Cannot contact Membership Manager. Now exiting.");
+        System.exit(0);
+      }
     }
 
     return rtms;
