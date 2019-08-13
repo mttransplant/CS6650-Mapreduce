@@ -194,17 +194,17 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
       int index = this.randomNumberGenerator.nextInt(numCoordinators);
       oldCoordinator = this.coordinators.get(index);
       this.coordinators.remove(index);
-    }
 
-    Uuid newPeer = oldCoordinator.getUuid();
+      Uuid newPeer = oldCoordinator.getUuid();
 
-    System.out.println(String.format("Removing a Coordinator: %s at port %d", newPeer.toString(), newPeer.getClientPort()));
+      System.out.println(String.format("Removing a Coordinator: %s at port %d", newPeer.toString(), newPeer.getClientPort()));
 
-    RemoteUser newUser = (RemoteUser) getRemoteRef(newPeer, USER);
-    newUser.unbindCoordinator();
+      RemoteUser newUser = (RemoteUser) getRemoteRef(newPeer, USER);
+      newUser.unbindCoordinator();
 
-    for (RemoteCoordinator rc : this.coordinators) {
-      rc.addPeer(newPeer);
+      for (RemoteCoordinator rc : this.coordinators) {
+        rc.addPeer(newPeer);
+      }
     }
   }
 
