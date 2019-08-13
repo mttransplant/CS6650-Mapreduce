@@ -17,6 +17,6 @@ public class WordCountMapper implements Mapper {
     @Override
     public int getPartition(String key, int numReducers) {
         char letter = key.toLowerCase().charAt(0);
-        return (letter - 'a') % 5;
+        return letter % numReducers;
     }
 }

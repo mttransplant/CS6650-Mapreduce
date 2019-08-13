@@ -73,8 +73,8 @@ public interface RemoteCoordinator extends Remote, Identify {
    * called by a JobManager
    *
    * @param numRequested the number of TaskManagers being requested by the JobManager
-   * @return a list of RemoteTaskManagers to be used by the calling JobManager
+   * @return a list of Uuids to be used by the calling JobManager as TaskManagers
    * @throws RemoteException
    */
-  List<RemoteTaskManager> getTaskManagers(int numRequested) throws RemoteException;
+  List<Uuid> getTaskManagers(int numRequested) throws RemoteException;
 }
