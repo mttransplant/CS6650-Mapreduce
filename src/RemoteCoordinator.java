@@ -1,3 +1,4 @@
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -31,7 +32,7 @@ public interface RemoteCoordinator extends Remote, Identify {
    *
    * @return the Uuid of a live Peer
    */
-  Uuid getActivePeer() throws RemoteException;
+  Uuid getActivePeer() throws RemoteException, NotBoundException;
 
   /**
    * a method to get the list of active Peers from this RemoteCoordinator

@@ -1,3 +1,4 @@
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -8,5 +9,5 @@ import java.rmi.RemoteException;
 public interface RemoteJobManager extends Remote, Identify {
   // called from a Coordinator, initiates task execution, delegates back
   // to RemoteCoordinator for RemoteTaskManager allocation
-  void manageJob(JobId jobId) throws RemoteException;
+  void manageJob(JobId jobId) throws RemoteException, NotBoundException;
 }

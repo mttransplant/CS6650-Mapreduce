@@ -22,7 +22,7 @@ public class MembershipServer {
       registry.rebind(MembershipManager.SERVICE_NAME, managerStub);
 
     } catch (RemoteException re) {
-      System.out.println("Exception encountered launching MembershipServer");
+      System.out.println("Exception encountered launching MembershipServer; please try again.");
     }
   }
 }

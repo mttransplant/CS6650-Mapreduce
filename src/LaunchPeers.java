@@ -39,9 +39,5 @@ public class LaunchPeers {
     peers.get(13).run();
     peers.get(14).run();
     peers.get(15).run();
-
-//    for (LaunchPeer lp : peers) {
-//      lp.run();
-//    }
   }
 }

@@ -72,13 +72,10 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       // register this Peer as a RemotePeer
       this.localRegistry.rebind(getUuid().toString(), peerStub);
     } catch (UnknownHostException uhe) {
-      // TODO: handle this exception better?
       System.out.println(String.format("UnkownHoustException encountered launching Peer: %s", uhe.getMessage()));
     } catch (RemoteException re) {
-      // TODO: then handle this exception better?
       System.out.println(String.format("RemoteException encountered launching Peer: %s", re.getMessage()));
     } catch (NotBoundException nbe) {
-      // TODO: then handle this exception better too?
       System.out.println(String.format("NotBoundException encountered launching Peer: %s", nbe.getMessage()));
     }
   }
@@ -91,7 +88,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       this.coordinatorUuid = this.service.addMember(this.uuid);
       this.coordinator = (RemoteCoordinator) getRemoteRef(coordinatorUuid, MembershipManager.COORDINATOR);
     } catch (RemoteException | NotBoundException ex) {
-      // TODO: figure out if this exception needs to be caught and, if so, what needs to happen in the catch clause
+      System.out.println("Sorry, but the service couldn't be reached; please try again later.");
       ex.printStackTrace();
     }
   }
@@ -131,7 +128,6 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
         // try again (recurse)
         submitJob(jobId);
       } catch (RemoteException | NotBoundException ex2) {
-        // TODO: determine if a better action is needed here
         System.out.println("Sorry, but your job couldn't be processed at this time; please re-submit later.");
         ex2.printStackTrace();
       }
@@ -155,7 +151,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       this.localRegistry.unbind(getUuid().toString());
       this.service.removeMember(this.uuid);
     } catch (RemoteException | NotBoundException ex) {
-      // TODO: figure out if this exception needs to be caught and, if so, what needs to happen in the catch clause
+      System.out.println("Sorry, but there was a problem leaving the service; you may wish to retry this action later.");
       ex.printStackTrace();
     }
   }
@@ -194,7 +190,6 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public void assignJobToJobManager(JobId jobId) {
-    // TODO: for now, this just picks a random Peer as the job manager
     int index = this.random.nextInt(this.availablePeers.size());
     Uuid selected = this.availablePeers.get(index);
     try {
@@ -202,7 +197,6 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       jobManager.manageJob(jobId);
       System.out.println(String.format("Job %s assigned to JobManager %s...", jobId.getJobIdNumber(), selected.toString()));
     } catch (RemoteException | NotBoundException ex){
-      // TODO: determine if recursion is safe here???
       System.out.println("Recursion due to the following exception:");
       ex.printStackTrace();
       assignJobToJobManager((jobId));
@@ -228,7 +222,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   @Override
-  public Uuid getActivePeer() {
+  public Uuid getActivePeer() throws RemoteException, NotBoundException {
     synchronized (this.availablePeers) {
       // iterate randomly through available peers, return first "live" peer, remove any encountered "dead" peers
       while(true) {
@@ -238,18 +232,10 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
           RemoteUser user = (RemoteUser) getRemoteRef(this.availablePeers.get(index), MembershipManager.USER);
           return user.getUuid();
         } catch (RemoteException | NotBoundException ex1) {
-          try {
-            this.service.removeMember(this.availablePeers.get(index));
-          } catch (RemoteException | NotBoundException ex2) {
-            // TODO: handle this exception better
-            ex2.printStackTrace();
-          }
+          this.service.removeMember(this.availablePeers.get(index));
         }
       }
     }
-
-    // TODO: handle situation where there are no active peers-- currently infinite recursion!!!
-    // TODO: beware of peer pinging itself; is this all right?
   }
 
   @Override
@@ -301,7 +287,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   /* ---------- JobManager methods ---------- */
   // this is the main method that coordinates all the necessary activities to complete a Job once a JobId has been received
   // this method is called every time a JobId is added to the managedJobIds list.
-  synchronized private void processJobIdQueue() {
+  synchronized private void processJobIdQueue() throws RemoteException, NotBoundException {
     while (this.managedJobIds.size() > 0) {
       System.out.println(String.format("JobManager %s staring job processing...", this.uuid.toString()));
 
@@ -317,6 +303,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       } catch (RemoteException | NotBoundException e) {
         System.out.println("JobManager.processJobIdQueue: Unable to reach user to return job. JobId removed from queue. " + e.getMessage());
         e.printStackTrace();
+        throw e;
       }
 
       this.managedJobIds.remove(0); // this job has completed, regardless of delivery to User, remove it from the queue
@@ -358,7 +345,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // this method takes a list of Tasks and in two phases, assigns the TaskManagers to apply the Mapper and then Reducer functions.
   @Override
-  public List<TaskResult> submitTasks(List<Task> tasks) {
+  public List<TaskResult> submitTasks(List<Task> tasks) throws RemoteException, NotBoundException {
     System.out.println(String.format("JobManager %s submitting tasks...", this.uuid.toString()));
 
     boolean mapIsCompleted = false;
@@ -376,6 +363,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
         reducerIds.add(r.getUuid());
       } catch (Exception ex) {
         ex.printStackTrace();
+        throw ex;
       }
     }
 
@@ -396,8 +384,6 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
       if (mapIsCompleted) {
         try {
-          // TODO: fix the tasksSize....!!!
-          // TODO Q: Wasn't this corrected today's (8/13/19 call?
           reduceTaskResultList = executeTaskCompletionService(reduceCompletionService, reducerIds.size());
           reduceIsCompleted = true;
         } catch (TimeoutException | InterruptedException | ExecutionException e) {
@@ -412,7 +398,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // local method that will reach out to the coordinator to request a set of available TaskManagers
   @Override
-  public List<RemoteTaskManager> requestTaskManagers(int num) {
+  public List<RemoteTaskManager> requestTaskManagers(int num) throws RemoteException, NotBoundException {
     System.out.println(String.format("JobManager %s requesting task managers...", this.uuid.toString()));
 
     if (num > MembershipManager.MAX_TASK_MANAGERS_PER_JOB) {
@@ -431,16 +417,28 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
         }
       } catch (RemoteException | NotBoundException ex) {
         System.out.println("JobManager.requestTaskManagers: Unable to reach assigned TaskManager. Moving on without it.");
+        ex.printStackTrace();
+        throw ex;
       }
     } catch (RemoteException re) {
       System.out.println("JobManager.requestTaskManagers: Unable to reach coordinator");
       re.printStackTrace();
+
       try {
-        Uuid newCoordinator = service.getNewCoordinator();
-        this.coordinator = (RemoteCoordinator) getRemoteRef(newCoordinator, MembershipManager.COORDINATOR);
-      } catch (RemoteException | NotBoundException e) {
-        System.out.println("JobManager.requestTaskManagers: Cannot contact Membership Manager. Now exiting.");
-        System.exit(0);
+        System.out.println("Encountered dead Coordinator while requesting TaskManagers; getting new Coordinator ref and recursing...");
+
+        // report old Coordinator as dead
+        this.service.removeMember(this.coordinator.getUuid());
+
+        // get new Coordinator
+        this.coordinatorUuid = this.service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(this.coordinatorUuid, MembershipManager.COORDINATOR);
+
+        // recurse
+        return requestTaskManagers(num);
+      } catch (RemoteException ex) {
+        ex.printStackTrace();
+        throw ex;
       }
     }
 
@@ -556,7 +554,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // method called by the coordinator to alert the JobManager that it has been assigned a JobId
   @Override
-  public void manageJob(JobId jobId) {
+  public void manageJob(JobId jobId) throws RemoteException, NotBoundException {
     this.managedJobIds.add(jobId);
     processJobIdQueue();
   }
@@ -633,7 +631,6 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
     Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), uuid.getClientPort());
     return registry.lookup(uuid.toString());
-//    return registry.lookup(uuid.toString() + peerRole);
   }
 
   /* ---------- Identify methods ---------- */
