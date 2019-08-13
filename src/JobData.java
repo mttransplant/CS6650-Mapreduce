@@ -2,7 +2,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-// this class stores the data that is used for a particular job and the methods used to describe and retrieve the enclosed data
+/**
+ * this class stores the data that is used for a particular job and the methods used to describe and retrieve the enclosed data
+ */
 public class JobData implements Serializable {
     private List<String> jobData; // the raw data that will be used by the job
 
