@@ -361,9 +361,9 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     boolean reduceIsCompleted = false;
     List<TaskResult> taskResultList, reduceTaskResultList = new ArrayList<>();
 
-    // TODO: determine if we want to pass in different numbers based on the size of the job
-    List<RemoteTaskManager> mapRtms = requestTaskManagers(10);
-    List<RemoteTaskManager> reduceRtms = requestTaskManagers(5);
+    // request the number of TaskManagers in proportion to the size of the list of Tasks
+    List<RemoteTaskManager> mapRtms = requestTaskManagers(tasks.size());
+    List<RemoteTaskManager> reduceRtms = requestTaskManagers(tasks.size()/2);
 
     // extract the Uuids of the TaskManagers that will be assigned as Reducers
     List<Uuid> reducerIds = new ArrayList<>();
