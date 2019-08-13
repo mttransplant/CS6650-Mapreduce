@@ -22,6 +22,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private int clientPort;
   private RemoteMembershipManager service;
   private Uuid uuid;
+  private Uuid coordinatorUuid;
   private RemoteCoordinator coordinator;
   private final List<Uuid> availablePeers;
   private Map<String, Job> userJobs;
@@ -84,8 +85,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   @Override
   public void join() {
     try {
-      Uuid coord = this.service.addMember(this.uuid);
-      this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+      this.coordinatorUuid = this.service.addMember(this.uuid);
+      this.coordinator = (RemoteCoordinator) getRemoteRef(coordinatorUuid, MembershipManager.COORDINATOR);
     } catch (RemoteException | NotBoundException ex) {
       // TODO: figure out if this exception needs to be caught and, if so, what needs to happen in the catch clause
       ex.printStackTrace();
@@ -106,23 +107,23 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       attemptSuccessful = this.coordinator.assignJob(jobId);
 
       while(!attemptSuccessful) { // if the coordinator has been decommissioned but is still an active peer
-        System.out.println("Attempt to submit the job unsuccessful, tring agian...");
+        System.out.println("Attempt to submit the job unsuccessful, trying again...");
 
         // get new coordinator
-        Uuid coord = this.service.getNewCoordinator();
-        this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+        this.coordinatorUuid = this.service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(coordinatorUuid, MembershipManager.COORDINATOR);
 
         // try again (recurse)
         attemptSuccessful = this.coordinator.assignJob(jobId);
       }
-    } catch (RemoteException | NotBoundException ex1) { // if the coordinator has crashed or left the network
+    } catch (RemoteException | NotBoundException | NullPointerException ex1) { // if the coordinator has crashed or left the network
       try {
         // have MembershipManager remove old (dead) coordinator
-        this.service.removeMember(this.coordinator.getUuid());
+        this.service.removeMember(this.coordinatorUuid);
 
         // get new coordinator
-        Uuid coord = this.service.getNewCoordinator();
-        this.coordinator = (RemoteCoordinator) getRemoteRef(coord, MembershipManager.COORDINATOR);
+        this.coordinatorUuid = this.service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(coordinatorUuid, MembershipManager.COORDINATOR);
 
         // try again (recurse)
         submitJob(jobId);

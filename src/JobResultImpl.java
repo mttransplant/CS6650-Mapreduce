@@ -12,12 +12,12 @@ public class JobResultImpl implements JobResult {
 
     // return the UserUuid of the user that submitted the job
     public Uuid getUserUuid() {
-        return job.getUserUuid();
+        return this.job.getUserUuid();
     }
 
     // return the JobId that is assigned to the Job that produced these results
     public JobId getJobId() {
-        return job.getJobId();
+        return this.job.getJobId();
     }
 
     // return the status of this object's results
@@ -33,8 +33,8 @@ public class JobResultImpl implements JobResult {
     // a method used to print this object's results to the terminal
     @Override
     public void print() {
-        System.out.println(String.format("Results for job %s...\n", job.getJobId().getJobIdNumber()));
-        resultData.print();
+        System.out.println(String.format("Results for job %s...\n", this.job.getJobId().getJobIdNumber()));
+        this.resultData.print();
         System.out.println();
     }
 }
