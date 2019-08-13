@@ -7,10 +7,7 @@ import MapReduce.Reducer;
  * an interface to represent a user of a peer-to-peer map/reduce service
  *
  * must maintain a reference to the RemoteMembershipManager
- * must maintain a references to a RemoteCoordinator
- *
- * if it encounters a dead RemoteCoordinator when attempting to submit a job,
- * it must leave() and then join() again before retrying job submission
+ * must maintain a reference to a RemoteCoordinator
  */
 public interface User extends Communicate {
   /**
@@ -52,7 +49,7 @@ public interface User extends Communicate {
   Map<String, JobResult> getResults();
 
   /**
-   * a method that allows this User to leave the sevice
+   * a method that allows this User to leave the service
    * delegates responsibility to the RemoteMembershipManager
    */
   void leave();

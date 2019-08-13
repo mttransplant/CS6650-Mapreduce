@@ -2,6 +2,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * a class to launch multiple Peers and perform multiple jobs for demo purposes
+ */
 public class LaunchPeers {
   public static void main(String[] args) {
     int PEERS_TO_CREATE = 100;

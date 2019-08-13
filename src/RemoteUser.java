@@ -23,9 +23,27 @@ public interface RemoteUser extends Remote, Identify {
    */
   void setJobResult(JobId jobId, JobResult results) throws RemoteException;
 
+  /**
+   * a method to set this User as a Coordinator
+   * called by the MembershipManager
+   *
+   * @throws RemoteException
+   */
   void setAsCoordinator() throws RemoteException;
 
+  /**
+   * a method to deselect this User as a Coordinator
+   * called by the MembershipManager
+
+   * @throws RemoteException
+   */
   void unbindCoordinator() throws RemoteException;
 
+  /**
+   * a method to check if this User has the minimum required computing resources to join the network
+   *
+   * @return true if it does, false otherwise
+   * @throws RemoteException
+   */
   boolean hasMinimumResources() throws RemoteException;
 }

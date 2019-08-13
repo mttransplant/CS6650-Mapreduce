@@ -5,8 +5,10 @@ import MapReduce.Reducer;
 import MapReduce.WordCountMapper;
 import MapReduce.WordCountReducer;
 
-// TODO: disallow a User to submit a job if the network has only 1 peer (i.e., itself)
-
+/**
+ * a class to launch a Peer for demo purposes
+ * when run(), submits a job, waits for the results, and then prints the results for display
+ */
 public class LaunchPeer implements Runnable {
   private String job;
   private Peer peer;

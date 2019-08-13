@@ -2,6 +2,9 @@ import java.io.Serializable;
 import java.net.InetAddress;
 import java.util.UUID;
 
+/**
+ * a class to universally identify a Peer by a uuid, inetAddress, and port used for communication
+ */
 public class Uuid implements Serializable {
   private final InetAddress inetAddress;
   private final int clientPort;

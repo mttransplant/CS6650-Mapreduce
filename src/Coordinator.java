@@ -1,6 +1,7 @@
+/**
+ * an interface for methods needed to act as a Coordinator in a peer-to-peer Map/Reduce network
+ */
 public interface Coordinator extends Communicate {
-  // TODO: determine what methods are needed here
-
     /**
      * a method to select an available JobManager and assign it to the requested job
      *

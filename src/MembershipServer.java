@@ -3,6 +3,9 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
+/**
+ * a class to launch a MembershipManager for a peer-to-peer Map/Reduce service
+ */
 public class MembershipServer {
   public static void main(String[] args) {
     try {

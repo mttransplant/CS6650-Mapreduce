@@ -14,10 +14,8 @@ import java.util.*;
 import java.util.concurrent.*;
 
 /**
- * 1. aggregate: mergeTaskResults()... establish a delegate for this method should be established in the Job and/or Reduce interface (Nay)
- * 2. try to make Task-related interfaces/classes generic if reasonable (Dan)
+ * a class to represent a Peer in a peer-to-peer Map/Reduce service
  */
-
 public class Peer implements User, Coordinator, JobManager, TaskManager, RemotePeer {
   private int clientPort;
   private RemoteMembershipManager service;
@@ -35,6 +33,11 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   private Random random;
   private Registry localRegistry;
 
+  /**
+   * a constructor to initiate this Peer
+   *
+   * @param clientPort the port over which other Peers will communicate with this Peer
+   */
   public Peer(int clientPort) {
     this.clientPort = clientPort;
     this.availablePeers = new LinkedList<>();
