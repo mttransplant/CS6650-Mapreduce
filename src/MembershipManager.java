@@ -8,8 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-// TODO: don't crash if Peer calls leave() before join()
-
 /**
  * a class that managers membership in a peer-to-peer map/reduce service
  * enforcing load-balancing policies for how man Coordinators are needed
@@ -50,8 +48,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
     RemoteUser newUser = (RemoteUser) getRemoteRef(newMember, MembershipManager.USER);
 
     if (!newUser.hasMinimumResources()) {
-      // TODO: do something here to notify user its join has failed.
-      return null;
+      throw new RemoteException("Sorry, but your system doesn't meet the minimum requirements to join this network.");
     }
 
     incrementMemberCount();

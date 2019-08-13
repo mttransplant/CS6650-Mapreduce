@@ -21,6 +21,4 @@ public class ResultData implements Serializable {
             System.out.println(String.format("%s : %d", word, this.resultData.get(word)));
         }
     }
-
-    // splitResultData not needed. The results from the TaskManagers will only be merged.
 }

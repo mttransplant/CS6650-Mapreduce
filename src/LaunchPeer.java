@@ -39,7 +39,7 @@ public class LaunchPeer implements Runnable {
       try {
         Thread.sleep(10 * 1000);
       } catch (InterruptedException ie) {
-
+        System.out.println("Thread interrupted; no cause for alarm...");
       }
 
       results = this.peer.getResults();

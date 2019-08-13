@@ -23,10 +23,10 @@ public interface JobManager extends Communicate {
      * @param num Number ofTaskMangers to request
      * @return List of RemoteTaskManagers
      */
-    List<RemoteTaskManager> requestTaskManagers(int num);
+    List<RemoteTaskManager> requestTaskManagers(int num) throws RemoteException, NotBoundException;
 
     // called to submit a task to a TaskManager for execution
-    List<TaskResult> submitTasks(List<Task> task);
+    List<TaskResult> submitTasks(List<Task> task) throws RemoteException, NotBoundException;
 
     // called to return the JobResults back to the RemoteUser
     void returnResults(JobResult jobResult);
