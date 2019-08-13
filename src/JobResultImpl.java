@@ -10,11 +10,11 @@ public class JobResultImpl implements JobResult {
     }
 
     public Uuid getUserUuid() {
-        return job.getUserUuid();
+        return this.job.getUserUuid();
     }
 
     public JobId getJobId() {
-        return job.getJobId();
+        return this.job.getJobId();
     }
 
     public String getStatus() {
@@ -27,8 +27,8 @@ public class JobResultImpl implements JobResult {
 
     @Override
     public void print() {
-        System.out.println(String.format("Results for job %s...\n", job.getJobId().getJobIdNumber()));
-        resultData.print();
+        System.out.println(String.format("Results for job %s...\n", this.job.getJobId().getJobIdNumber()));
+        this.resultData.print();
         System.out.println();
     }
 }

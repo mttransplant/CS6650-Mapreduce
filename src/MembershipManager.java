@@ -46,7 +46,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public Uuid addMember(Uuid newMember) throws RemoteException, NotBoundException {
-    System.out.println("A member is being added.");
+    System.out.println(String.format("A member is being added: %s at port %d", newMember.toString(), newMember.getClientPort()));
     RemoteUser newUser = (RemoteUser) getRemoteRef(newMember, MembershipManager.USER);
 
     if (!newUser.hasMinimumResources()) {
@@ -70,7 +70,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public void removeMember(Uuid oldMember) throws RemoteException, NotBoundException {
-    System.out.println("A member is being removed.");
+    System.out.println(String.format("A member is being removed: %s at port %d", oldMember.toString(), oldMember.getClientPort()));
 
     decrementMemberCount();
     int index;
@@ -104,7 +104,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
 
   @Override
   public Remote getRemoteRef(Uuid uuid, String peerRole) throws RemoteException, NotBoundException {
-    System.out.println("Getting remote reference.");
+    System.out.println(String.format("Getting remote reference: %s at port %d", uuid.toString(), uuid.getClientPort()));
 
     Registry registry = LocateRegistry.getRegistry(uuid.getAddress().getHostName(), uuid.getClientPort());
     return registry.lookup(uuid.toString());
@@ -144,7 +144,7 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method that designates the given Peer as a Coordinator
    */
   private void designateNewPeerAsCoordinator(Uuid uuid) throws RemoteException, NotBoundException {
-    System.out.println("A new Peer is being designated as a Coordinator.");
+    System.out.println(String.format("A new Peer is being designated as a Coordinator: %s at port %d", uuid.toString(), uuid.getClientPort()));
 
     RemoteUser newUser = (RemoteUser) getRemoteRef(uuid, USER);
     newUser.setAsCoordinator();
@@ -164,10 +164,11 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method to designate a pre-existing non-Coordinator Peer as a new Coordinator
    */
   private void selectPreExistingPeerToBeCoordinator() throws RemoteException, NotBoundException {
-    System.out.println("An existing Peer is being selected to be a Coordinator.");
-
     RemoteCoordinator coordinator = getCoordinatorRef();
     Uuid peer = coordinator.getActivePeer();
+
+    System.out.println(String.format("An existing Peer is being selected to be a Coordinator: %s at port %d", peer.toString(), peer.getClientPort()));
+
     RemoteUser newUser = (RemoteUser) getRemoteRef(peer, USER);
     newUser.setAsCoordinator();
 
@@ -186,8 +187,6 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * and registers that Peer as available for non-Coordinator work with all remaining Coordinators
    */
   private void removeACoordinator() throws RemoteException, NotBoundException {
-    System.out.println("Removing a Coordinator");
-
     RemoteCoordinator oldCoordinator;
 
     synchronized (this.coordinators) {
@@ -198,6 +197,9 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
     }
 
     Uuid newPeer = oldCoordinator.getUuid();
+
+    System.out.println(String.format("Removing a Coordinator: %s at port %d", newPeer.toString(), newPeer.getClientPort()));
+
     RemoteUser newUser = (RemoteUser) getRemoteRef(newPeer, USER);
     newUser.unbindCoordinator();
 
@@ -227,14 +229,14 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
     int index;
     RemoteCoordinator coordinator;
 
-    synchronized (coordinators) {
-      numCoordinators = coordinators.size();
+    synchronized (this.coordinators) {
+      numCoordinators = this.coordinators.size();
 
-      synchronized (randomNumberGenerator) {
-        index = randomNumberGenerator.nextInt(numCoordinators);
+      synchronized (this.randomNumberGenerator) {
+        index = this.randomNumberGenerator.nextInt(numCoordinators);
       }
 
-      coordinator = coordinators.get(index);
+      coordinator = this.coordinators.get(index);
     }
 
     return coordinator;

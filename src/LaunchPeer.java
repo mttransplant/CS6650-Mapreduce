@@ -7,28 +7,29 @@ import MapReduce.WordCountReducer;
 
 // TODO: disallow a User to submit a job if the network has only 1 peer (i.e., itself)
 
-public class LaunchPeer {
-  public static void main(String[] args) {
-    int numPeers = 40;
-    int portBase = 5000;
-    Peer[] peers = new Peer[numPeers];
+public class LaunchPeer implements Runnable {
+  private String job;
+  private Peer peer;
 
-    for (int i = 0; i < numPeers; i++) {
-      peers[i] = new Peer(portBase + i);
-      peers[i].join();
-    }
+  public LaunchPeer(String job, int port) {
+    this.job = job;
+    this.peer = new Peer(port);
+    this.peer.join();
+  }
 
-    String[] wordArray = "a a a b b b c c c d d d a e e e f f f g g g h h h i i i j j j k k k l l l m m m n n n o o o p p p q q q r r r s s s t t t u u u v v v w w w x x x y y y z z z".split("\\W+");
+  @Override
+  public void run() {
+    String[] wordArray = job.split("\\W+");
 
     JobData jobData = new JobData(wordArray);
-    JobId jobId = new JobId(peers[1].getUuid(), jobData.getSize());
+    JobId jobId = new JobId(this.peer.getUuid(), jobData.getSize());
     Mapper mapper = new WordCountMapper();
     Reducer reducer = new WordCountReducer();
 
-    peers[1].createJob(jobId, jobData, mapper, reducer);
-    peers[1].submitJob(jobId);
+    this.peer.createJob(jobId, jobData, mapper, reducer);
+    this.peer.submitJob(jobId);
 
-    Map<String, JobResult> results = peers[1].getResults();
+    Map<String, JobResult> results = this.peer.getResults();
 
     while (results.size() == 0) {
       System.out.println("No results yet, trying again...");
@@ -39,7 +40,7 @@ public class LaunchPeer {
 
       }
 
-      results = peers[1].getResults();
+      results = this.peer.getResults();
     }
 
     JobResult result = results.get(jobId.getJobIdNumber());
