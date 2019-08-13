@@ -393,6 +393,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       if (mapIsCompleted) {
         try {
           // TODO: fix the tasksSize....!!!
+          // TODO Q: Wasn't this corrected today's (8/13/19 call?
           reduceTaskResultList = executeTaskCompletionService(reduceCompletionService, reducerIds.size());
           reduceIsCompleted = true;
         } catch (TimeoutException | InterruptedException | ExecutionException e) {
@@ -431,7 +432,13 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     } catch (RemoteException re) {
       System.out.println("JobManager.requestTaskManagers: Unable to reach coordinator");
       re.printStackTrace();
-      // TODO: Need a way to request a different Coordinator
+      try {
+        Uuid newCoordinator = service.getNewCoordinator();
+        this.coordinator = (RemoteCoordinator) getRemoteRef(newCoordinator, MembershipManager.COORDINATOR);
+      } catch (RemoteException | NotBoundException e) {
+        System.out.println("JobManager.requestTaskManagers: Cannot contact Membership Manager. Now exiting.");
+        System.exit(0);
+      }
     }
 
     return rtms;
