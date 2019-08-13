@@ -426,8 +426,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
           rtms.add((RemoteTaskManager) getRemoteRef(uuid, MembershipManager.TASK_MANAGER));
         }
       } catch (RemoteException | NotBoundException ex) {
-        // TODO: determine best course of action if allocated a "dead" TaskManager
-        ex.printStackTrace();
+        System.out.println("JobManager.requestTaskManagers: Unable to reach assigned TaskManager. Moving on without it.");
       }
     } catch (RemoteException re) {
       System.out.println("JobManager.requestTaskManagers: Unable to reach coordinator");
