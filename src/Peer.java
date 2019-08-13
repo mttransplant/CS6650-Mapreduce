@@ -16,7 +16,7 @@ import java.util.concurrent.*;
 /**
  * a class to represent a Peer in a peer-to-peer Map/Reduce service
  */
-public class Peer implements User, Coordinator, JobManager, TaskManager, RemotePeer {
+public class Peer implements User, Coordinator, JobManager, RemotePeer {
   private int clientPort;
   private RemoteMembershipManager service;
   private Uuid uuid;
@@ -332,7 +332,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     System.out.println(String.format("JobManager %s splitting job into tasks...", this.uuid.toString()));
 
     List<Task> taskList = new ArrayList<>();
-    List<JobData> splitData = job.getSplitData(1000);
+    List<JobData> splitData = job.getSplitData(100);
     TaskId taskId = new TaskId(job.getUserUuid(), job.getJobId());
 
     for (JobData jd : splitData) {
@@ -354,7 +354,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
     // request the number of TaskManagers in proportion to the size of the list of Tasks
     List<RemoteTaskManager> mapRtms = requestTaskManagers(tasks.size());
-    List<RemoteTaskManager> reduceRtms = requestTaskManagers(tasks.size()/2);
+    List<RemoteTaskManager> reduceRtms = requestTaskManagers(Math.max(1, tasks.size()/2));
 
     // extract the Uuids of the TaskManagers that will be assigned as Reducers
     List<Uuid> reducerIds = new ArrayList<>();
@@ -558,10 +558,6 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     this.managedJobIds.add(jobId);
     processJobIdQueue();
   }
-
-  /* ---------- TaskManager methods ---------- */
-
-
 
   /* ---------- RemoteTaskManager methods ---------- */
 
