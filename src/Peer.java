@@ -169,7 +169,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public void setJobResult(JobId jobId, JobResult results) {
-    System.out.println("Setting job results...");
+    System.out.println(String.format("Setting job results for job %s...", jobId.getJobIdNumber()));
 
     this.jobResults.put(jobId.getJobIdNumber(), results);
   }
@@ -200,7 +200,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     try {
       RemoteJobManager jobManager = (RemoteJobManager) getRemoteRef(selected, MembershipManager.JOB_MANAGER);
       jobManager.manageJob(jobId);
-      System.out.println("Job assigned to JobManager...");
+      System.out.println(String.format("Job %s assigned to JobManager %s...", jobId.getJobIdNumber(), selected.toString()));
     } catch (RemoteException | NotBoundException ex){
       // TODO: determine if recursion is safe here???
       System.out.println("Recursion due to the following exception:");
@@ -214,14 +214,14 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   @Override
   public void addPeer(Uuid peer) {
     synchronized (this.availablePeers) {
-      System.out.println("A peer is being added.");
+      System.out.println(String.format("Peer %s is being added at port %d.", peer.toString(), peer.getClientPort()));
       this.availablePeers.add(peer);
     }
   }
 
   @Override
   public void removePeer(Uuid peer) {
-    System.out.println("A peer is being removed.");
+    System.out.println(String.format("Peer %s is being removed from port %d.", peer.toString(), peer.getClientPort()));
     synchronized (this.availablePeers) {
       this.availablePeers.remove(peer);
     }
@@ -303,7 +303,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   // this method is called every time a JobId is added to the managedJobIds list.
   synchronized private void processJobIdQueue() {
     while (this.managedJobIds.size() > 0) {
-      System.out.println("Staring job processing...");
+      System.out.println(String.format("JobManager %s staring job processing...", this.uuid.toString()));
 
       JobId jobId = this.managedJobIds.get(0);
 
@@ -326,7 +326,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   // this is the method that, given a JobId, will reach out to the submitter to get the full Job
   @Override
   public Job retrieveJob(JobId jobId) throws RemoteException, NotBoundException {
-    System.out.println("Retrieving job...");
+    System.out.println(String.format("JobManager %s retrieving job...", this.uuid.toString()));
 
     try {
       RemoteUser user = (RemoteUser) getRemoteRef(jobId.getSubmitter(), MembershipManager.USER);
@@ -342,7 +342,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // this method takes a Job, gets its data, and splits that into a list of Tasks
   private List<Task> splitJobToTasks(Job job) {
-    System.out.println("Splitting job into tasks...");
+    System.out.println(String.format("JobManager %s splitting job into tasks...", this.uuid.toString()));
 
     List<Task> taskList = new ArrayList<>();
     List<JobData> splitData = job.getSplitData(1000);
@@ -359,7 +359,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   // this method takes a list of Tasks and in two phases, assigns the TaskManagers to apply the Mapper and then Reducer functions.
   @Override
   public List<TaskResult> submitTasks(List<Task> tasks) {
-    System.out.println("Submitting tasks...");
+    System.out.println(String.format("JobManager %s submitting tasks...", this.uuid.toString()));
 
     boolean mapIsCompleted = false;
     boolean reduceIsCompleted = false;
@@ -413,7 +413,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   // local method that will reach out to the coordinator to request a set of available TaskManagers
   @Override
   public List<RemoteTaskManager> requestTaskManagers(int num) {
-    System.out.println("Requesting task managers...");
+    System.out.println(String.format("JobManager %s requesting task managers...", this.uuid.toString()));
 
     if (num > MembershipManager.MAX_TASK_MANAGERS_PER_JOB) {
       num = MembershipManager.MAX_TASK_MANAGERS_PER_JOB;
@@ -449,7 +449,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // establish the completion service that will be used to submit a Map or Reduce task to the TaskManager
   private CompletionService<TaskResult> establishTaskCompletionService(List<RemoteTaskManager> rtmList, List<Task> taskList, boolean isMapTask, List<Uuid> reducerIds) {
-    System.out.println("Establishing task completion service...");
+    System.out.println(String.format("JobManager %s establishing task completion service...", this.uuid.toString()));
 
     CompletionService<TaskResult> completionService = new ExecutorCompletionService<>(this.taskExecutor);
 
@@ -501,7 +501,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // run the executor that will administer the previously established completion services
   private List<TaskResult> executeTaskCompletionService(CompletionService<TaskResult> completionService, int tasksSize) throws InterruptedException, ExecutionException, TimeoutException{
-    System.out.println("Executing task completion service...");
+    System.out.println(String.format("JobManager %s executing task completion service...", this.uuid.toString()));
 
     List<TaskResult> responses = new ArrayList<>();
     Future<TaskResult> r;
@@ -527,7 +527,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   // helper method to merge the list of TaskResults from all TaskManagers into a single TaskResult
   private TaskResult mergeTaskResults(List<TaskResult> taskResults) {
-    System.out.println("Merging task results...");
+    System.out.println(String.format("JobManager %s merging task results...", this.uuid.toString()));
 
     Map<String, Integer> aggregate = new HashMap<>();
 
@@ -540,7 +540,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   // method to return the JobResult to the submitter
   @Override
   public void returnResults(JobResult jobResult) {
-    System.out.println("Returning results...");
+    System.out.println(String.format("JobManager %s is returning results for Job %s", this.uuid.toString(), jobResult.getJobId().getJobIdNumber()));
 
     try {
       RemoteUser user = (RemoteUser) getRemoteRef(jobResult.getUserUuid(), MembershipManager.USER);
@@ -569,6 +569,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public TaskResult performMapTask(Task task, List<Uuid> reducerIds) {
+    System.out.println(String.format("TaskManager %s is performing its map Task %s for job %s", this.uuid.toString(), task.getTaskId().getTaskId(), task.getTaskId().getJobId().getJobIdNumber()));
+
     // Mapping Phase
     Mapper mapper = task.getMapper();
     Map<String, Integer> map = new HashMap<>();
@@ -598,7 +600,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public void submitMapResult(String key, int value, JobId jobId) {
-    // TODO: make mapResults thread-safe
+    System.out.println(String.format("TaskManager %s is submitting its MapResult for Job %s", this.uuid.toString(), jobId.getJobIdNumber()));
+
     List<KeyValuePair> list;
 
     if (this.mapResults.containsKey(jobId.getJobIdNumber())) {
@@ -614,6 +617,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   @Override
   public TaskResult performReduceTask(Task task) {
+    System.out.println(String.format("TaskManager %s is performing its reduce Task %s for Job %s", this.uuid.toString(), task.getTaskId().getTaskId(), task.getTaskId().getJobId().getJobIdNumber()));
+
     // Reduce Phase
     Reducer reducer = task.getReducer();
     Map<String, Integer> map = new HashMap<>();
