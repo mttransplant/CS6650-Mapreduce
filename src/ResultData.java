@@ -12,13 +12,13 @@ public class ResultData implements Serializable {
     }
 
     public Map<String, Integer> getResultData() {
-        return resultData;
+        return this.resultData;
     }
 
     public void print() {
         System.out.println("word : number of times word appeared in document");
-        for (String word : resultData.keySet()) {
-            System.out.println(String.format("%s : %d", word, resultData.get(word)));
+        for (String word : this.resultData.keySet()) {
+            System.out.println(String.format("%s : %d", word, this.resultData.get(word)));
         }
     }
 

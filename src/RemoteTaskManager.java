@@ -7,7 +7,7 @@ import java.util.List;
  */
 public interface RemoteTaskManager extends Remote, Identify {
   TaskResult performMapTask(Task task, List<Uuid> reducerIds) throws RemoteException; // called from a JobManager
-  void submitMapResult(String key, int value) throws RemoteException;
+  void submitMapResult(String key, int value, JobId jobId) throws RemoteException;
   TaskResult performReduceTask(Task task) throws RemoteException;
 //  void setReducerIds(List<Uuid> uuids) throws RemoteException;
 }

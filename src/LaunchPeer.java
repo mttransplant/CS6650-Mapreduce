@@ -18,7 +18,7 @@ public class LaunchPeer {
       peers[i].join();
     }
 
-    String[] wordArray = "a a a b b b c c c d d d e e e f f f g g g h h h i i i j j j k k k l l l m m m n n n o o o p p p q q q r r r s s s t t t u u u v v v w w w x x x y y y z z z".split("\\W+");
+    String[] wordArray = "a a a b b b c c c d d d a e e e f f f g g g h h h i i i j j j k k k l l l m m m n n n o o o p p p q q q r r r s s s t t t u u u v v v w w w x x x y y y z z z".split("\\W+");
 
     JobData jobData = new JobData(wordArray);
     JobId jobId = new JobId(peers[1].getUuid(), jobData.getSize());
