@@ -1,5 +1,3 @@
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import MapReduce.Mapper;
@@ -11,7 +9,7 @@ import MapReduce.WordCountReducer;
 
 public class LaunchPeer {
   public static void main(String[] args) {
-    int numPeers = 10;
+    int numPeers = 40;
     int portBase = 5000;
     Peer[] peers = new Peer[numPeers];
 
@@ -20,25 +18,31 @@ public class LaunchPeer {
       peers[i].join();
     }
 
-    String[] wordArray = "This string has five\nwords.".split("\\W+");
-    List<String> wordList = Arrays.asList(wordArray);
+    String[] wordArray = "a a a b b b c c c d d d e e e f f f g g g h h h i i i j j j k k k l l l m m m n n n o o o p p p q q q r r r s s s t t t u u u v v v w w w x x x y y y z z z".split("\\W+");
 
-    JobData jobData = new JobData(wordList);
+    JobData jobData = new JobData(wordArray);
     JobId jobId = new JobId(peers[1].getUuid(), jobData.getSize());
     Mapper mapper = new WordCountMapper();
     Reducer reducer = new WordCountReducer();
 
-    peers[0].leave();
     peers[1].createJob(jobId, jobData, mapper, reducer);
     peers[1].submitJob(jobId);
 
     Map<String, JobResult> results = peers[1].getResults();
 
-    JobResult result;
+    while (results.size() == 0) {
+      System.out.println("No results yet, trying again...");
 
-    if (results.size() > 0) {
-      result = results.get(jobId.getJobIdNumber());
-      result.print();
+      try {
+        Thread.sleep(10 * 1000);
+      } catch (InterruptedException ie) {
+
+      }
+
+      results = peers[1].getResults();
     }
+
+    JobResult result = results.get(jobId.getJobIdNumber());
+    result.print();
   }
 }
