@@ -352,25 +352,42 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
     boolean reduceIsCompleted = false;
     List<TaskResult> taskResultList, reduceTaskResultList = new ArrayList<>();
 
-    // request the number of TaskManagers in proportion to the size of the list of Tasks
-    List<RemoteTaskManager> mapRtms = requestTaskManagers(tasks.size());
-    List<RemoteTaskManager> reduceRtms = requestTaskManagers(Math.max(1, tasks.size()/2));
-
-    // extract the Uuids of the TaskManagers that will be assigned as Reducers
-    List<Uuid> reducerIds = new ArrayList<>();
-    for (RemoteTaskManager r : reduceRtms) {
-      try {
-        reducerIds.add(r.getUuid());
-      } catch (Exception ex) {
-        ex.printStackTrace();
-        throw ex;
-      }
-    }
-
-    CompletionService<TaskResult> completionService = establishTaskCompletionService(mapRtms, tasks, true, reducerIds);
+//    // request the number of TaskManagers in proportion to the size of the list of Tasks
+//    List<RemoteTaskManager> mapRtms = requestTaskManagers(tasks.size());
+//    List<RemoteTaskManager> reduceRtms = requestTaskManagers(Math.max(1, tasks.size()/2));
+//
+//    // extract the Uuids of the TaskManagers that will be assigned as Reducers
+//    List<Uuid> reducerIds = new ArrayList<>();
+//    for (RemoteTaskManager r : reduceRtms) {
+//      try {
+//        reducerIds.add(r.getUuid());
+//      } catch (Exception ex) {
+//        ex.printStackTrace();
+//        throw ex;
+//      }
+//    }
+//
+//    CompletionService<TaskResult> completionService = establishTaskCompletionService(mapRtms, tasks, true, reducerIds);
 
     // attempt to complete both the Map and Reduce processes. Will retry the Map process if it fails before proceeding to the Reduce task
     while (!reduceIsCompleted) {
+      // request the number of TaskManagers in proportion to the size of the list of Tasks
+      List<RemoteTaskManager> mapRtms = requestTaskManagers(tasks.size());
+      List<RemoteTaskManager> reduceRtms = requestTaskManagers(Math.max(1, tasks.size()/2));
+
+      // extract the Uuids of the TaskManagers that will be assigned as Reducers
+      List<Uuid> reducerIds = new ArrayList<>();
+      for (RemoteTaskManager r : reduceRtms) {
+        try {
+          reducerIds.add(r.getUuid());
+        } catch (Exception ex) {
+          ex.printStackTrace();
+          throw ex;
+        }
+      }
+
+      CompletionService<TaskResult> completionService = establishTaskCompletionService(mapRtms, tasks, true, reducerIds);
+
       try {
         taskResultList = executeTaskCompletionService(completionService, tasks.size());
         System.out.println("JobManager.submitTasks completed MapTask of size: " + taskResultList.size());
@@ -456,14 +473,14 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
         RemoteTaskManager rtm = nextRtm(rtmList);
 
         completionService.submit(new Callable<TaskResult>() {
-          public TaskResult call() throws InterruptedException{
+          public TaskResult call() throws RemoteException, NotBoundException {
             TaskResult tr;
             try {
               tr = rtm.performMapTask(task, reducerIds);
-            } catch (RemoteException e) {
+            } catch (RemoteException | NotBoundException e) {
               System.out.println("JobManager.establishTaskCompletionService Remote Exception: " + e.getMessage());
               e.printStackTrace();
-              throw new InterruptedException("establishTaskCompletionService: RemoteException: " + e.getMessage());
+              throw e;
             }
             return tr;
           }
@@ -472,14 +489,14 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
     } else {
       for (RemoteTaskManager rtm : rtmList) {
         completionService.submit(new Callable<TaskResult>() {
-          public TaskResult call() throws InterruptedException{
+          public TaskResult call() throws RemoteException {
             TaskResult tr;
             try {
               tr = rtm.performReduceTask(taskList.get(0));
             } catch (RemoteException e) {
               System.out.println("JobManager.establishTaskCompletionService Remote Exception: " + e.getMessage());
               e.printStackTrace();
-              throw new InterruptedException("establishTaskCompletionService: RemoteException: " + e.getMessage());
+              throw e;
             }
             return tr;
           }
@@ -498,7 +515,7 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
   }
 
   // run the executor that will administer the previously established completion services
-  private List<TaskResult> executeTaskCompletionService(CompletionService<TaskResult> completionService, int tasksSize) throws InterruptedException, ExecutionException, TimeoutException{
+  private List<TaskResult> executeTaskCompletionService(CompletionService<TaskResult> completionService, int tasksSize) throws InterruptedException, ExecutionException, TimeoutException {
     System.out.println(String.format("JobManager %s executing task completion service...", this.uuid.toString()));
 
     List<TaskResult> responses = new ArrayList<>();
@@ -562,7 +579,7 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
   /* ---------- RemoteTaskManager methods ---------- */
 
   @Override
-  public TaskResult performMapTask(Task task, List<Uuid> reducerIds) {
+  public TaskResult performMapTask(Task task, List<Uuid> reducerIds) throws RemoteException, NotBoundException {
     System.out.println(String.format("TaskManager %s is performing its map Task %s for job %s", this.uuid.toString(), task.getTaskId().getTaskId(), task.getTaskId().getJobId().getJobIdNumber()));
 
     // Mapping Phase
@@ -583,9 +600,11 @@ public class Peer implements User, Coordinator, JobManager, RemotePeer {
       } catch (NotBoundException e) {
         System.out.println("TaskManager.performMapTask NotBoundException: " + e.getMessage());
         e.printStackTrace();
+        throw e;
       } catch (RemoteException e) {
         System.out.println("TaskManager.performMapTask RemoteException: " + e.getMessage());
         e.printStackTrace();
+        throw e;
       }
     }
 

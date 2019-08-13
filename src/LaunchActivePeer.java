@@ -9,11 +9,11 @@ import MapReduce.WordCountReducer;
  * a class to launch a Peer for demo purposes
  * when run(), submits a job, waits for the results, and then prints the results for display
  */
-public class LaunchPeer implements Runnable {
+public class LaunchActivePeer implements Runnable {
   private String job;
   private Peer peer;
 
-  public LaunchPeer(String job, int port) {
+  public LaunchActivePeer(String job, int port) {
     this.job = job;
     this.peer = new Peer(port);
     this.peer.join();
@@ -21,7 +21,7 @@ public class LaunchPeer implements Runnable {
 
   @Override
   public void run() {
-    String[] wordArray = job.split("\\W+");
+    String[] wordArray = this.job.split("\\W+");
 
     JobData jobData = new JobData(wordArray);
     JobId jobId = new JobId(this.peer.getUuid(), jobData.getSize());
@@ -30,6 +30,8 @@ public class LaunchPeer implements Runnable {
 
     this.peer.createJob(jobId, jobData, mapper, reducer);
     this.peer.submitJob(jobId);
+
+    System.out.println("Job submitted...");
 
     Map<String, JobResult> results = this.peer.getResults();
 
