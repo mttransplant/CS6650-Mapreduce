@@ -47,7 +47,6 @@ public interface Job extends Serializable {
      * @return the MapReduce.Mapper function object
      */
     Mapper getMapper();
-    // TODO: Connect with Nay on naming and implementation details
 
     /**
      * a method to retrieve the MapReduce.Reducer function object that the user provided
@@ -61,5 +60,4 @@ public interface Job extends Serializable {
      * @return the MapReduce.Mapper function object
      */
     Reducer getReducer();
-    // TODO: Connect with nay on naming and implementation details
 }
