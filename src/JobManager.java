@@ -13,9 +13,15 @@ import java.util.List;
  * report that to the MembershipManager
  */
 public interface JobManager extends Communicate {
-  // TODO: determine what methods are needed here
 
-    // called to collect the Job from the User, given a JobId
+    /**
+     * Called by the JobManager to reach out to the user that has requested a JobId. This method
+     * will reach out to get the full content of the Job
+     * @param jobId contains the header info for the requested Job, so the JobManager can look up the peer.
+     * @return the Job object that contains all the details of the job
+     * @throws RemoteException
+     * @throws NotBoundException
+     */
     Job retrieveJob(JobId jobId) throws RemoteException, NotBoundException;
 
     /**
@@ -25,9 +31,16 @@ public interface JobManager extends Communicate {
      */
     List<RemoteTaskManager> requestTaskManagers(int num);
 
-    // called to submit a task to a TaskManager for execution
-    List<TaskResult> submitTasks(List<Task> task);
+    /**
+     * called to submit a task to a TaskManger for execution
+     * @param tasks is the list of all Tasks that need to be assigned to TaskManagers
+     * @return a list of TaskResults that contains the completed output of the Map/Reduce
+     */
+    List<TaskResult> submitTasks(List<Task> tasks);
 
-    // called to return the JobResults back to the RemoteUser
+    /**
+     * called to return the JobResult to the submitting user
+     * @param jobResult contains the complete results that need to be returned
+     */
     void returnResults(JobResult jobResult);
 }

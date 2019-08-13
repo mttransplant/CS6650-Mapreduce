@@ -295,7 +295,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
   }
 
   /* ---------- JobManager methods ---------- */
-
+  // this is the main method that coordinates all the necessary activities to complete a Job once a JobId has been received
+  // this method is called every time a JobId is added to the managedJobIds list.
   synchronized private void processJobIdQueue() {
     while (this.managedJobIds.size() > 0) {
       System.out.println("Staring job processing...");
@@ -303,21 +304,22 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
       JobId jobId = this.managedJobIds.get(0);
 
       try {
-        Job job = retrieveJob(jobId);
-        List<Task> taskList = splitJobToTasks(job);
-        List<TaskResult> taskResults = submitTasks(taskList);
-        TaskResult finalTaskResult = mergeTaskResults(taskResults);
-        JobResult jobResult = new JobResultImpl(job, finalTaskResult.getStatus(), finalTaskResult.getResults());
-        returnResults(jobResult);
+        Job job = retrieveJob(jobId); // reach out to the submitter to get the full Job
+        List<Task> taskList = splitJobToTasks(job); // split the job payload into Tasks
+        List<TaskResult> taskResults = submitTasks(taskList); // submit the Tasks to TaskManagers. submitTasks is a large method
+        TaskResult finalTaskResult = mergeTaskResults(taskResults); // merge the TaskResults
+        JobResult jobResult = new JobResultImpl(job, finalTaskResult.getStatus(), finalTaskResult.getResults()); // construct the JobResult object
+        returnResults(jobResult); // send the JobResult to the submitter
       } catch (RemoteException | NotBoundException e) {
         System.out.println("JobManager.processJobIdQueue: Unable to reach user to return job. JobId removed from queue. " + e.getMessage());
         e.printStackTrace();
       }
 
-      this.managedJobIds.remove(0);
+      this.managedJobIds.remove(0); // this job has completed, regardless of delivery to User, remove it from the queue
     }
   }
 
+  // this is the method that, given a JobId, will reach out to the submitter to get the full Job
   @Override
   public Job retrieveJob(JobId jobId) throws RemoteException, NotBoundException {
     System.out.println("Retrieving job...");
@@ -334,6 +336,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     }
   }
 
+  // this method takes a Job, gets its data, and splits that into a list of Tasks
   private List<Task> splitJobToTasks(Job job) {
     System.out.println("Splitting job into tasks...");
 
@@ -349,6 +352,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     return taskList;
   }
 
+  // this method takes a list of Tasks and in two phases, assigns the TaskManagers to apply the Mapper and then Reducer functions.
   @Override
   public List<TaskResult> submitTasks(List<Task> tasks) {
     System.out.println("Submitting tasks...");
@@ -361,8 +365,8 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     List<RemoteTaskManager> mapRtms = requestTaskManagers(10);
     List<RemoteTaskManager> reduceRtms = requestTaskManagers(5);
 
+    // extract the Uuids of the TaskManagers that will be assigned as Reducers
     List<Uuid> reducerIds = new ArrayList<>();
-
     for (RemoteTaskManager r : reduceRtms) {
       try {
         reducerIds.add(r.getUuid());
@@ -373,6 +377,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
     CompletionService<TaskResult> completionService = establishTaskCompletionService(mapRtms, tasks, true, reducerIds);
 
+    // attempt to complete both the Map and Reduce processes. Will retry the Map process if it fails before proceeding to the Reduce task
     while (!reduceIsCompleted) {
       try {
         taskResultList = executeTaskCompletionService(completionService, tasks.size());
@@ -400,6 +405,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     return reduceTaskResultList;
   }
 
+  // local method that will reach out to the coordinator to request a set of available TaskManagers
   @Override
   public List<RemoteTaskManager> requestTaskManagers(int num) {
     System.out.println("Requesting task managers...");
@@ -431,7 +437,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     return rtms;
   }
 
-  // establish the completion service that will be used to submit a task to the TaskManager
+  // establish the completion service that will be used to submit a Map or Reduce task to the TaskManager
   private CompletionService<TaskResult> establishTaskCompletionService(List<RemoteTaskManager> rtmList, List<Task> taskList, boolean isMapTask, List<Uuid> reducerIds) {
     System.out.println("Establishing task completion service...");
 
@@ -476,6 +482,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     return completionService;
   }
 
+  // method used to select the next TaskManager to complete a Map task
   private RemoteTaskManager nextRtm(List<RemoteTaskManager> rtmList) {
     Random r = new Random();
     int index = r.nextInt(rtmList.size());
@@ -492,7 +499,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     try {
       for (int t = 0; t < tasksSize; t++ ) {
         r = completionService.take();
-        TaskResult tr = r.get(Task.TIMEOUT, TimeUnit.SECONDS);
+        TaskResult tr = r.get(Task.TIMEOUT, Task.TIMEUNIT);
         responses.add(tr);
       }
     } catch (InterruptedException e) {
@@ -508,6 +515,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     return responses;
   }
 
+  // helper method to merge the list of TaskResults from all TaskManagers into a single TaskResult
   private TaskResult mergeTaskResults(List<TaskResult> taskResults) {
     System.out.println("Merging task results...");
 
@@ -519,6 +527,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
     return new ReduceTaskResult(aggregate);
   }
 
+  // method to return the JobResult to the submitter
   @Override
   public void returnResults(JobResult jobResult) {
     System.out.println("Returning results...");
@@ -535,6 +544,7 @@ public class Peer implements User, Coordinator, JobManager, TaskManager, RemoteP
 
   /* ---------- RemoteJobManager methods ---------- */
 
+  // method called by the coordinator to alert the JobManager that it has been assigned a JobId
   @Override
   public void manageJob(JobId jobId) {
     this.managedJobIds.add(jobId);

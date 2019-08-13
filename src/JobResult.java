@@ -8,8 +8,6 @@ import java.io.Serializable;
  */
 
 public interface JobResult extends Serializable {
-    String SUCCESS = "success";
-    String ERROR = "error";
     /**
      * a method to retrieve the user's Uuid so the results
      * can be returned
@@ -42,7 +40,6 @@ public interface JobResult extends Serializable {
      * called by the Peer
      *
      * @return the File of the processed results
-     * TODO: need to decide if file will be null if there were errors
      */
     ResultData getResults();
 

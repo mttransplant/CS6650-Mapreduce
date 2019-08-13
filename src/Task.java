@@ -1,16 +1,15 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
-
-import java.io.File;
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 /**
  * an interface to represent the Task that will be passed from a JobManager to a TaskManager
  *
  */
 public interface Task extends Serializable {
-    // constant for how long a JobManager will wait for a TaskManager to respond
-    int TIMEOUT = 60;
+    int TIMEOUT = 60; // constant for how long a JobManager will wait for a TaskManager to respond
+    TimeUnit TIMEUNIT = TimeUnit.SECONDS; // constant for the time unit JobManager will wait for a TaskManager to respond
 
     /**
      * a method to retrieve the TaskId.
@@ -57,7 +56,6 @@ public interface Task extends Serializable {
      * @return the MapReduce.Mapper function object
      */
     Mapper getMapper();
-    // TODO: Connect with Nay on naming and implementation details
 
     /**
      * a method to retrieve the MapReduce.Reducer function object that the user provided
@@ -69,5 +67,4 @@ public interface Task extends Serializable {
      * @return the MapReduce.Mapper function object
      */
     Reducer getReducer();
-    // TODO: Connect with nay on naming and implementation details
 }
