@@ -161,22 +161,25 @@ public class MembershipManager implements RemoteMembershipManager, Communicate {
    * a method to designate a pre-existing non-Coordinator Peer as a new Coordinator
    */
   private void selectPreExistingPeerToBeCoordinator() throws RemoteException, NotBoundException {
-    RemoteCoordinator coordinator = getCoordinatorRef();
-    Uuid peer = coordinator.getActivePeer();
 
-    System.out.println(String.format("An existing Peer is being selected to be a Coordinator: %s at port %d", peer.toString(), peer.getClientPort()));
+    synchronized (this.coordinators) {
+      RemoteCoordinator coordinator = getCoordinatorRef();
+      Uuid peer = coordinator.getActivePeer();
 
-    RemoteUser newUser = (RemoteUser) getRemoteRef(peer, USER);
-    newUser.setAsCoordinator();
+      System.out.println(String.format("An existing Peer is being selected to be a Coordinator: %s at port %d", peer.toString(), peer.getClientPort()));
 
-    for (RemoteCoordinator rc : this.coordinators) {
-      rc.removePeer(peer);
+      RemoteUser newUser = (RemoteUser) getRemoteRef(peer, USER);
+      newUser.setAsCoordinator();
+
+      for (RemoteCoordinator rc : this.coordinators) {
+        rc.removePeer(peer);
+      }
+
+      RemoteCoordinator newCoordinator = (RemoteCoordinator) getRemoteRef(peer, COORDINATOR);
+      newCoordinator.setActivePeers(coordinator.getActivePeers());
+
+      this.coordinators.add(newCoordinator);
     }
-
-    RemoteCoordinator newCoordinator = (RemoteCoordinator) getRemoteRef(peer, COORDINATOR);
-    newCoordinator.setActivePeers(coordinator.getActivePeers());
-
-    this.coordinators.add(newCoordinator);
   }
 
   /**

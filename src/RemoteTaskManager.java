@@ -1,3 +1,4 @@
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -13,7 +14,7 @@ public interface RemoteTaskManager extends Remote, Identify {
    * @return TaskResult, an intermediary result package
    * @throws RemoteException in case performMapTask cannot reach the Reducers
    */
-  TaskResult performMapTask(Task task, List<Uuid> reducerIds) throws RemoteException;
+  TaskResult performMapTask(Task task, List<Uuid> reducerIds) throws RemoteException, NotBoundException;
 
   /**
    * called by the TaskManager to submit the intermediary results to the appropriate reducer.
