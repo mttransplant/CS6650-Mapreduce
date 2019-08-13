@@ -1,10 +1,7 @@
-// should have the Uuid of the submitting User as a field
-
 import MapReduce.Mapper;
 import MapReduce.Reducer;
 import java.io.Serializable;
 import java.util.List;
-
 
 /**
  * an interface to represent the job that will be passed from a peer to a JobManager

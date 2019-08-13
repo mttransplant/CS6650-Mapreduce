@@ -1,16 +1,17 @@
 import MapReduce.Mapper;
 import MapReduce.Reducer;
-
 import java.io.Serializable;
 
+// an object to represent the Task that will be passed from a JobManager to a TaskManager
 public class TaskImpl implements Task, Serializable {
-    private TaskId taskId;
-    private Uuid userUuid;
-    private Uuid jobManagerUuid;
-    private JobData jobData;
-    private Mapper mapper;
-    private Reducer reducer;
+    private TaskId taskId; // the "header" information for this Task
+    private Uuid userUuid; // the Uuid of the submitter associated with this Task
+    private Uuid jobManagerUuid; // the Uuid of the JobManager that assigned this Task
+    private JobData jobData; // the data segment that has been assigned to this Task
+    private Mapper mapper; // the Mapper function that will be used by this Task
+    private Reducer reducer; // the Reducer function that will be used by this Task
 
+    // default initializer
     public TaskImpl(TaskId taskId, Uuid userUuid, Uuid jobManagerUuid, JobData jobData, Mapper mapper, Reducer reducer) {
         this.taskId = taskId;
         this.userUuid = userUuid;
@@ -20,30 +21,33 @@ public class TaskImpl implements Task, Serializable {
         this.reducer = reducer;
     }
 
+    // method to return this Task's TaskId
     public TaskId getTaskId() {
         return taskId;
     }
 
+    // method to return this Task's submitter Uuid
     public Uuid getPeerUuid() {
         return userUuid;
     }
 
+    // method to return this Task's JobManager Uuid
     public Uuid getJobManagerUuid() {
         return jobManagerUuid;
     }
 
+    // method to return this Task's data
     public JobData getDataset() {
         return jobData;
     }
 
+    // method to return this Task's Mapper function
     public Mapper getMapper() {
-        // TODO: Connect with Nay on naming and implementation details
         return mapper;
     }
 
+    // method to return this Task's Reducer function
     public Reducer getReducer() {
-        // TODO: Connect with nay on naming and implementation details
         return reducer;
     }
-
 }
