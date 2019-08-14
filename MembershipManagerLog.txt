@@ -1,0 +1,462 @@
+/Library/Java/JavaVirtualMachines/jdk-12.0.1.jdk/Contents/Home/bin/java -agentlib:jdwp=transport=dt_socket,address=127.0.0.1:55910,suspend=y,server=n -javaagent:/Users/daskivich/Library/Caches/IdeaIC2019.1/captureAgent/debugger-agent.jar -Dfile.encoding=UTF-8 -classpath "/Users/daskivich/CS6650:/Applications/IntelliJ IDEA CE.app/Contents/lib/idea_rt.jar" MembershipServer
+Connected to the target VM, address: '127.0.0.1:55910', transport: 'socket'
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+A member is being added: 656eac86-e149-4af2-a8aa-414810348d52 at port 5000
+Getting remote reference: 656eac86-e149-4af2-a8aa-414810348d52 at port 5000
+A new Peer is being designated as a Coordinator: 656eac86-e149-4af2-a8aa-414810348d52 at port 5000
+Getting remote reference: 656eac86-e149-4af2-a8aa-414810348d52 at port 5000
+Getting remote reference: 656eac86-e149-4af2-a8aa-414810348d52 at port 5000
+Getting new Coordinator reference.
+A member is being added: 3555346a-5d57-448a-95d7-adcaf6ff0ecc at port 5001
+Getting remote reference: 3555346a-5d57-448a-95d7-adcaf6ff0ecc at port 5001
+Getting new Coordinator reference.
+A member is being added: 9257c9e9-c8da-4ef2-8406-249a1810a106 at port 5002
+Getting remote reference: 9257c9e9-c8da-4ef2-8406-249a1810a106 at port 5002
+Getting new Coordinator reference.
+A member is being added: e2000a93-2460-4a09-a8c7-d7ef50854d76 at port 5003
+Getting remote reference: e2000a93-2460-4a09-a8c7-d7ef50854d76 at port 5003
+Getting new Coordinator reference.
+A member is being added: 3cfc6def-c7ee-4608-8db2-84ebbf208ecd at port 5004
+Getting remote reference: 3cfc6def-c7ee-4608-8db2-84ebbf208ecd at port 5004
+Getting new Coordinator reference.
+A member is being added: 3024c436-e5f3-4f50-9ca4-fd3895d1389b at port 5005
+Getting remote reference: 3024c436-e5f3-4f50-9ca4-fd3895d1389b at port 5005
+A new Peer is being designated as a Coordinator: 3024c436-e5f3-4f50-9ca4-fd3895d1389b at port 5005
+Getting remote reference: 3024c436-e5f3-4f50-9ca4-fd3895d1389b at port 5005
+Getting remote reference: 3024c436-e5f3-4f50-9ca4-fd3895d1389b at port 5005
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: fb31cb89-7c97-4cfc-aabb-22f4c1c232eb at port 5006
+Getting remote reference: fb31cb89-7c97-4cfc-aabb-22f4c1c232eb at port 5006
+Getting new Coordinator reference.
+A member is being added: 21afaaf7-58a9-421f-b8b5-0fbf8bcd5c8c at port 5007
+Getting remote reference: 21afaaf7-58a9-421f-b8b5-0fbf8bcd5c8c at port 5007
+Getting new Coordinator reference.
+A member is being added: f640aa2c-48e4-4b39-86a7-144483550494 at port 5008
+Getting remote reference: f640aa2c-48e4-4b39-86a7-144483550494 at port 5008
+Getting new Coordinator reference.
+A member is being added: 44a9f4ff-054c-4ca7-a01b-3ee6b4f44588 at port 5009
+Getting remote reference: 44a9f4ff-054c-4ca7-a01b-3ee6b4f44588 at port 5009
+Getting new Coordinator reference.
+A member is being added: ec1cc752-1d8d-4520-a56c-56676c025243 at port 5010
+Getting remote reference: ec1cc752-1d8d-4520-a56c-56676c025243 at port 5010
+Getting new Coordinator reference.
+A member is being added: 54914d32-371d-4cfd-b2d1-8d75f17a629f at port 5011
+Getting remote reference: 54914d32-371d-4cfd-b2d1-8d75f17a629f at port 5011
+A new Peer is being designated as a Coordinator: 54914d32-371d-4cfd-b2d1-8d75f17a629f at port 5011
+Getting remote reference: 54914d32-371d-4cfd-b2d1-8d75f17a629f at port 5011
+Getting remote reference: 54914d32-371d-4cfd-b2d1-8d75f17a629f at port 5011
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 122fd125-40e2-43ac-9101-02fe9ba11793 at port 5012
+Getting remote reference: 122fd125-40e2-43ac-9101-02fe9ba11793 at port 5012
+Getting new Coordinator reference.
+A member is being added: 3fbd9764-c834-43c1-9545-7b383bb9f364 at port 5013
+Getting remote reference: 3fbd9764-c834-43c1-9545-7b383bb9f364 at port 5013
+Getting new Coordinator reference.
+A member is being added: 9ddbd39d-d6ae-465d-a8dc-80e902fcf3a6 at port 5014
+Getting remote reference: 9ddbd39d-d6ae-465d-a8dc-80e902fcf3a6 at port 5014
+Getting new Coordinator reference.
+A member is being added: 86c1d5d7-a4e7-41ab-b674-676e560007cf at port 5015
+Getting remote reference: 86c1d5d7-a4e7-41ab-b674-676e560007cf at port 5015
+Getting new Coordinator reference.
+A member is being added: ea4a0ba4-f993-40e1-bbe3-8233b8992e6d at port 5016
+Getting remote reference: ea4a0ba4-f993-40e1-bbe3-8233b8992e6d at port 5016
+Getting new Coordinator reference.
+A member is being added: 6b39e698-bbfe-46f5-946e-71840c8b8758 at port 5017
+Getting remote reference: 6b39e698-bbfe-46f5-946e-71840c8b8758 at port 5017
+A new Peer is being designated as a Coordinator: 6b39e698-bbfe-46f5-946e-71840c8b8758 at port 5017
+Getting remote reference: 6b39e698-bbfe-46f5-946e-71840c8b8758 at port 5017
+Getting remote reference: 6b39e698-bbfe-46f5-946e-71840c8b8758 at port 5017
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: fb6f116b-e3f7-495d-b245-8a40c871dcc2 at port 5018
+Getting remote reference: fb6f116b-e3f7-495d-b245-8a40c871dcc2 at port 5018
+Getting new Coordinator reference.
+A member is being added: 288106b0-cfc2-4032-8fc7-d766e7f2441a at port 5019
+Getting remote reference: 288106b0-cfc2-4032-8fc7-d766e7f2441a at port 5019
+Getting new Coordinator reference.
+A member is being added: 5863b04f-24eb-4758-aba5-7a1b495d6b53 at port 5020
+Getting remote reference: 5863b04f-24eb-4758-aba5-7a1b495d6b53 at port 5020
+Getting new Coordinator reference.
+A member is being added: c6f03ecc-1924-4a70-88c8-7459a574fe3b at port 5021
+Getting remote reference: c6f03ecc-1924-4a70-88c8-7459a574fe3b at port 5021
+Getting new Coordinator reference.
+A member is being added: 11b7e617-02d5-4408-aafd-ae64b87e9dde at port 5022
+Getting remote reference: 11b7e617-02d5-4408-aafd-ae64b87e9dde at port 5022
+Getting new Coordinator reference.
+A member is being added: 61a74e26-67b7-48d4-acfc-170aa0ad3ae0 at port 5023
+Getting remote reference: 61a74e26-67b7-48d4-acfc-170aa0ad3ae0 at port 5023
+A new Peer is being designated as a Coordinator: 61a74e26-67b7-48d4-acfc-170aa0ad3ae0 at port 5023
+Getting remote reference: 61a74e26-67b7-48d4-acfc-170aa0ad3ae0 at port 5023
+Getting remote reference: 61a74e26-67b7-48d4-acfc-170aa0ad3ae0 at port 5023
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: ddbf4dec-968d-4836-8358-4fd3575baf5e at port 5024
+Getting remote reference: ddbf4dec-968d-4836-8358-4fd3575baf5e at port 5024
+Getting new Coordinator reference.
+A member is being added: 38485ef7-f40f-46c6-a32a-5d66df9fc463 at port 5025
+Getting remote reference: 38485ef7-f40f-46c6-a32a-5d66df9fc463 at port 5025
+Getting new Coordinator reference.
+A member is being added: 7c731d30-46b1-487f-82e0-c2540d45ac61 at port 5026
+Getting remote reference: 7c731d30-46b1-487f-82e0-c2540d45ac61 at port 5026
+Getting new Coordinator reference.
+A member is being added: 06d83821-3851-4f97-a4fb-212e611527a9 at port 5027
+Getting remote reference: 06d83821-3851-4f97-a4fb-212e611527a9 at port 5027
+Getting new Coordinator reference.
+A member is being added: 28fbf2c0-f2b3-47bd-9bf0-7be9a739938f at port 5028
+Getting remote reference: 28fbf2c0-f2b3-47bd-9bf0-7be9a739938f at port 5028
+Getting new Coordinator reference.
+A member is being added: dded2687-7fd7-4dde-8c7f-97c6df9f3863 at port 5029
+Getting remote reference: dded2687-7fd7-4dde-8c7f-97c6df9f3863 at port 5029
+A new Peer is being designated as a Coordinator: dded2687-7fd7-4dde-8c7f-97c6df9f3863 at port 5029
+Getting remote reference: dded2687-7fd7-4dde-8c7f-97c6df9f3863 at port 5029
+Getting remote reference: dded2687-7fd7-4dde-8c7f-97c6df9f3863 at port 5029
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: b7f43182-94e5-47d6-8f08-5a3333926d87 at port 5030
+Getting remote reference: b7f43182-94e5-47d6-8f08-5a3333926d87 at port 5030
+Getting new Coordinator reference.
+A member is being added: d9f49c8c-523d-41d0-88f9-c84b8337d18f at port 5031
+Getting remote reference: d9f49c8c-523d-41d0-88f9-c84b8337d18f at port 5031
+Getting new Coordinator reference.
+A member is being added: b7a828c3-d3ef-4262-8e4d-b511bc432980 at port 5032
+Getting remote reference: b7a828c3-d3ef-4262-8e4d-b511bc432980 at port 5032
+Getting new Coordinator reference.
+A member is being added: bf7feaaa-ab32-4962-b745-00cb258f73d8 at port 5033
+Getting remote reference: bf7feaaa-ab32-4962-b745-00cb258f73d8 at port 5033
+Getting new Coordinator reference.
+A member is being added: b3c07059-d109-48eb-af58-3af51a4cf318 at port 5034
+Getting remote reference: b3c07059-d109-48eb-af58-3af51a4cf318 at port 5034
+Getting new Coordinator reference.
+A member is being added: e12a95c4-623a-4486-bcb2-9dd22807bf1d at port 5035
+Getting remote reference: e12a95c4-623a-4486-bcb2-9dd22807bf1d at port 5035
+A new Peer is being designated as a Coordinator: e12a95c4-623a-4486-bcb2-9dd22807bf1d at port 5035
+Getting remote reference: e12a95c4-623a-4486-bcb2-9dd22807bf1d at port 5035
+Getting remote reference: e12a95c4-623a-4486-bcb2-9dd22807bf1d at port 5035
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: bcf1fbe2-4264-4f3b-8e3a-0ea18d949d65 at port 5036
+Getting remote reference: bcf1fbe2-4264-4f3b-8e3a-0ea18d949d65 at port 5036
+Getting new Coordinator reference.
+A member is being added: cb7465fc-5a37-4793-9885-7ce2099d70ad at port 5037
+Getting remote reference: cb7465fc-5a37-4793-9885-7ce2099d70ad at port 5037
+Getting new Coordinator reference.
+A member is being added: 0cc9e02a-3337-4194-846e-044899e17a64 at port 5038
+Getting remote reference: 0cc9e02a-3337-4194-846e-044899e17a64 at port 5038
+Getting new Coordinator reference.
+A member is being added: 0243e896-5c50-4253-b93d-53215e51e3fd at port 5039
+Getting remote reference: 0243e896-5c50-4253-b93d-53215e51e3fd at port 5039
+Getting new Coordinator reference.
+A member is being added: 7fe6d4a5-d40f-46e1-83f7-a1dcd172ed73 at port 5040
+Getting remote reference: 7fe6d4a5-d40f-46e1-83f7-a1dcd172ed73 at port 5040
+Getting new Coordinator reference.
+A member is being added: d6b9651b-21e7-4b1a-8449-5063b79123c4 at port 5041
+Getting remote reference: d6b9651b-21e7-4b1a-8449-5063b79123c4 at port 5041
+A new Peer is being designated as a Coordinator: d6b9651b-21e7-4b1a-8449-5063b79123c4 at port 5041
+Getting remote reference: d6b9651b-21e7-4b1a-8449-5063b79123c4 at port 5041
+Getting remote reference: d6b9651b-21e7-4b1a-8449-5063b79123c4 at port 5041
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 5e28ee69-2b32-4b32-8c1b-37c43bf0aa61 at port 5042
+Getting remote reference: 5e28ee69-2b32-4b32-8c1b-37c43bf0aa61 at port 5042
+Getting new Coordinator reference.
+A member is being added: 2664e72a-dfff-4875-aefd-68d846f48242 at port 5043
+Getting remote reference: 2664e72a-dfff-4875-aefd-68d846f48242 at port 5043
+Getting new Coordinator reference.
+A member is being added: 1495dd3c-8256-472e-9785-adfed5fa5e52 at port 5044
+Getting remote reference: 1495dd3c-8256-472e-9785-adfed5fa5e52 at port 5044
+Getting new Coordinator reference.
+A member is being added: 9768b9f8-14e9-48f0-b8b6-5f65c65de2f5 at port 5045
+Getting remote reference: 9768b9f8-14e9-48f0-b8b6-5f65c65de2f5 at port 5045
+Getting new Coordinator reference.
+A member is being added: 9a4257ae-f5b8-4539-8f6b-5ccc16a38b93 at port 5046
+Getting remote reference: 9a4257ae-f5b8-4539-8f6b-5ccc16a38b93 at port 5046
+Getting new Coordinator reference.
+A member is being added: e5000460-161b-40d9-8bc7-ab272667c013 at port 5047
+Getting remote reference: e5000460-161b-40d9-8bc7-ab272667c013 at port 5047
+A new Peer is being designated as a Coordinator: e5000460-161b-40d9-8bc7-ab272667c013 at port 5047
+Getting remote reference: e5000460-161b-40d9-8bc7-ab272667c013 at port 5047
+Getting remote reference: e5000460-161b-40d9-8bc7-ab272667c013 at port 5047
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 73f61894-7201-4a98-a1b5-2be6530805ca at port 5048
+Getting remote reference: 73f61894-7201-4a98-a1b5-2be6530805ca at port 5048
+Getting new Coordinator reference.
+A member is being added: 30e709bb-8a6d-47a7-a4b9-b7b382f18bfa at port 5049
+Getting remote reference: 30e709bb-8a6d-47a7-a4b9-b7b382f18bfa at port 5049
+Getting new Coordinator reference.
+A member is being added: a48e6f90-5d70-4747-bafe-4eafb49dfcf5 at port 5050
+Getting remote reference: a48e6f90-5d70-4747-bafe-4eafb49dfcf5 at port 5050
+Getting new Coordinator reference.
+A member is being added: da852a8c-4571-400d-8047-fcc7239e2379 at port 5051
+Getting remote reference: da852a8c-4571-400d-8047-fcc7239e2379 at port 5051
+Getting new Coordinator reference.
+A member is being added: a930ef18-f7a1-4051-805a-c584a400a3a6 at port 5052
+Getting remote reference: a930ef18-f7a1-4051-805a-c584a400a3a6 at port 5052
+Getting new Coordinator reference.
+A member is being added: 8ef5623a-9748-4707-a887-eee0eb877ae0 at port 5053
+Getting remote reference: 8ef5623a-9748-4707-a887-eee0eb877ae0 at port 5053
+A new Peer is being designated as a Coordinator: 8ef5623a-9748-4707-a887-eee0eb877ae0 at port 5053
+Getting remote reference: 8ef5623a-9748-4707-a887-eee0eb877ae0 at port 5053
+Getting remote reference: 8ef5623a-9748-4707-a887-eee0eb877ae0 at port 5053
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 8e0e39c1-2913-42e3-af03-f78d6ae87584 at port 5054
+Getting remote reference: 8e0e39c1-2913-42e3-af03-f78d6ae87584 at port 5054
+Getting new Coordinator reference.
+A member is being added: 9aa16830-bea4-4775-b986-dbb8b756c9ee at port 5055
+Getting remote reference: 9aa16830-bea4-4775-b986-dbb8b756c9ee at port 5055
+Getting new Coordinator reference.
+A member is being added: 75d93e35-ca5e-4e59-9eed-5e0a6d038f46 at port 5056
+Getting remote reference: 75d93e35-ca5e-4e59-9eed-5e0a6d038f46 at port 5056
+Getting new Coordinator reference.
+A member is being added: 47766444-2dd8-4f6e-9a62-ae73629348f6 at port 5057
+Getting remote reference: 47766444-2dd8-4f6e-9a62-ae73629348f6 at port 5057
+Getting new Coordinator reference.
+A member is being added: dea96f5e-cdea-41d7-85e3-edc401bef630 at port 5058
+Getting remote reference: dea96f5e-cdea-41d7-85e3-edc401bef630 at port 5058
+Getting new Coordinator reference.
+A member is being added: 70859369-6380-40f5-a76d-cb3e756b81b0 at port 5059
+Getting remote reference: 70859369-6380-40f5-a76d-cb3e756b81b0 at port 5059
+A new Peer is being designated as a Coordinator: 70859369-6380-40f5-a76d-cb3e756b81b0 at port 5059
+Getting remote reference: 70859369-6380-40f5-a76d-cb3e756b81b0 at port 5059
+Getting remote reference: 70859369-6380-40f5-a76d-cb3e756b81b0 at port 5059
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 49b84465-cf47-4033-ab0d-bdc58b4c56c9 at port 5060
+Getting remote reference: 49b84465-cf47-4033-ab0d-bdc58b4c56c9 at port 5060
+Getting new Coordinator reference.
+A member is being added: 6c730dc0-c800-468f-a476-bf393aaa0ff3 at port 5061
+Getting remote reference: 6c730dc0-c800-468f-a476-bf393aaa0ff3 at port 5061
+Getting new Coordinator reference.
+A member is being added: dcc01cca-43f4-4823-a82b-7f2903f33f93 at port 5062
+Getting remote reference: dcc01cca-43f4-4823-a82b-7f2903f33f93 at port 5062
+Getting new Coordinator reference.
+A member is being added: 967d1cb6-e055-449e-b138-44dbe210355d at port 5063
+Getting remote reference: 967d1cb6-e055-449e-b138-44dbe210355d at port 5063
+Getting new Coordinator reference.
+A member is being added: d4aeb8f9-3ec6-4984-ad4b-87d312c488dd at port 5064
+Getting remote reference: d4aeb8f9-3ec6-4984-ad4b-87d312c488dd at port 5064
+Getting new Coordinator reference.
+A member is being added: a8e85f95-e1cf-4fb0-a7cc-e74216660556 at port 5065
+Getting remote reference: a8e85f95-e1cf-4fb0-a7cc-e74216660556 at port 5065
+A new Peer is being designated as a Coordinator: a8e85f95-e1cf-4fb0-a7cc-e74216660556 at port 5065
+Getting remote reference: a8e85f95-e1cf-4fb0-a7cc-e74216660556 at port 5065
+Getting remote reference: a8e85f95-e1cf-4fb0-a7cc-e74216660556 at port 5065
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 60b3c0cc-e295-46b4-a1f9-fe348863edfb at port 5066
+Getting remote reference: 60b3c0cc-e295-46b4-a1f9-fe348863edfb at port 5066
+Getting new Coordinator reference.
+A member is being added: de924703-6cd6-4a76-a802-71b0f00e5110 at port 5067
+Getting remote reference: de924703-6cd6-4a76-a802-71b0f00e5110 at port 5067
+Getting new Coordinator reference.
+A member is being added: ae6c6610-8e6a-4cf9-b61d-fafc4b2c79ba at port 5068
+Getting remote reference: ae6c6610-8e6a-4cf9-b61d-fafc4b2c79ba at port 5068
+Getting new Coordinator reference.
+A member is being added: b167795d-412d-4ec9-8b22-784e5b921f51 at port 5069
+Getting remote reference: b167795d-412d-4ec9-8b22-784e5b921f51 at port 5069
+Getting new Coordinator reference.
+A member is being added: 62603f13-392c-4197-835e-f7ab09355e9e at port 5070
+Getting remote reference: 62603f13-392c-4197-835e-f7ab09355e9e at port 5070
+Getting new Coordinator reference.
+A member is being added: 09ca3a0c-fc01-4f68-9660-651aaee380aa at port 5071
+Getting remote reference: 09ca3a0c-fc01-4f68-9660-651aaee380aa at port 5071
+A new Peer is being designated as a Coordinator: 09ca3a0c-fc01-4f68-9660-651aaee380aa at port 5071
+Getting remote reference: 09ca3a0c-fc01-4f68-9660-651aaee380aa at port 5071
+Getting remote reference: 09ca3a0c-fc01-4f68-9660-651aaee380aa at port 5071
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 43236c51-1491-4252-acbc-e1579b24d0c8 at port 5072
+Getting remote reference: 43236c51-1491-4252-acbc-e1579b24d0c8 at port 5072
+Getting new Coordinator reference.
+A member is being added: 0670ab3a-2a52-4bfd-96a0-d271c65b4adf at port 5073
+Getting remote reference: 0670ab3a-2a52-4bfd-96a0-d271c65b4adf at port 5073
+Getting new Coordinator reference.
+A member is being added: 2d0008cb-975f-4e4f-b802-9d8f2f6f1a90 at port 5074
+Getting remote reference: 2d0008cb-975f-4e4f-b802-9d8f2f6f1a90 at port 5074
+Getting new Coordinator reference.
+A member is being added: e563cf4c-ce02-4fda-8324-0ff624114db8 at port 5075
+Getting remote reference: e563cf4c-ce02-4fda-8324-0ff624114db8 at port 5075
+Getting new Coordinator reference.
+A member is being added: ae66f000-0b57-478a-b572-b0dd3706e069 at port 5076
+Getting remote reference: ae66f000-0b57-478a-b572-b0dd3706e069 at port 5076
+Getting new Coordinator reference.
+A member is being added: 2af736fb-7dee-435a-b078-39f4c9833c53 at port 5077
+Getting remote reference: 2af736fb-7dee-435a-b078-39f4c9833c53 at port 5077
+A new Peer is being designated as a Coordinator: 2af736fb-7dee-435a-b078-39f4c9833c53 at port 5077
+Getting remote reference: 2af736fb-7dee-435a-b078-39f4c9833c53 at port 5077
+Getting remote reference: 2af736fb-7dee-435a-b078-39f4c9833c53 at port 5077
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 4c182701-3822-4822-8c58-6a13e5b18193 at port 5078
+Getting remote reference: 4c182701-3822-4822-8c58-6a13e5b18193 at port 5078
+Getting new Coordinator reference.
+A member is being added: cb6ecc6e-9840-4523-b0b1-1a55140965c7 at port 5079
+Getting remote reference: cb6ecc6e-9840-4523-b0b1-1a55140965c7 at port 5079
+Getting new Coordinator reference.
+A member is being added: 7f183c75-529b-496f-bd29-ebdaf838c705 at port 5080
+Getting remote reference: 7f183c75-529b-496f-bd29-ebdaf838c705 at port 5080
+Getting new Coordinator reference.
+A member is being added: 72e2b3d6-bc2b-468d-9741-0014356f39ba at port 5081
+Getting remote reference: 72e2b3d6-bc2b-468d-9741-0014356f39ba at port 5081
+Getting new Coordinator reference.
+A member is being added: b1073d0a-89ed-4d56-83d5-889d2ff93cd9 at port 5082
+Getting remote reference: b1073d0a-89ed-4d56-83d5-889d2ff93cd9 at port 5082
+Getting new Coordinator reference.
+A member is being added: 217ff87c-fe85-4b1a-9adb-ff3c41af14ef at port 5083
+Getting remote reference: 217ff87c-fe85-4b1a-9adb-ff3c41af14ef at port 5083
+A new Peer is being designated as a Coordinator: 217ff87c-fe85-4b1a-9adb-ff3c41af14ef at port 5083
+Getting remote reference: 217ff87c-fe85-4b1a-9adb-ff3c41af14ef at port 5083
+Getting remote reference: 217ff87c-fe85-4b1a-9adb-ff3c41af14ef at port 5083
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: 3a986fd7-79f0-4b2e-9c5b-147aadbd6eb0 at port 5084
+Getting remote reference: 3a986fd7-79f0-4b2e-9c5b-147aadbd6eb0 at port 5084
+Getting new Coordinator reference.
+A member is being added: 862b3b1c-550f-496f-a8df-b5847d37678c at port 5085
+Getting remote reference: 862b3b1c-550f-496f-a8df-b5847d37678c at port 5085
+Getting new Coordinator reference.
+A member is being added: 369a2829-4141-4402-a185-6fbc57cf21c6 at port 5086
+Getting remote reference: 369a2829-4141-4402-a185-6fbc57cf21c6 at port 5086
+Getting new Coordinator reference.
+A member is being added: da12d145-e415-4eb0-911a-fb78163406bc at port 5087
+Getting remote reference: da12d145-e415-4eb0-911a-fb78163406bc at port 5087
+Getting new Coordinator reference.
+A member is being added: 5e9e0386-87a6-4747-bd09-f17478105531 at port 5088
+Getting remote reference: 5e9e0386-87a6-4747-bd09-f17478105531 at port 5088
+Getting new Coordinator reference.
+A member is being added: a7510ccf-dc20-4d13-846b-cb1432e1204e at port 5089
+Getting remote reference: a7510ccf-dc20-4d13-846b-cb1432e1204e at port 5089
+A new Peer is being designated as a Coordinator: a7510ccf-dc20-4d13-846b-cb1432e1204e at port 5089
+Getting remote reference: a7510ccf-dc20-4d13-846b-cb1432e1204e at port 5089
+Getting remote reference: a7510ccf-dc20-4d13-846b-cb1432e1204e at port 5089
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: c7e4ef57-81a3-4be9-881e-b13d61fe1fb1 at port 6000
+Getting remote reference: c7e4ef57-81a3-4be9-881e-b13d61fe1fb1 at port 6000
+Getting new Coordinator reference.
+A member is being added: 4e347b7b-26d1-4f51-a37d-5a0e54c09490 at port 6001
+Getting remote reference: 4e347b7b-26d1-4f51-a37d-5a0e54c09490 at port 6001
+Getting new Coordinator reference.
+A member is being added: c9dc2be9-6564-4693-8cbe-8a8fb804faf3 at port 6002
+Getting remote reference: c9dc2be9-6564-4693-8cbe-8a8fb804faf3 at port 6002
+Getting new Coordinator reference.
+A member is being added: bfdf4653-a8a6-4cf9-a4c2-970f71bc9acb at port 6003
+Getting remote reference: bfdf4653-a8a6-4cf9-a4c2-970f71bc9acb at port 6003
+Getting new Coordinator reference.
+A member is being added: a2cfc5ba-875c-4906-b991-990304329bf3 at port 6004
+Getting remote reference: a2cfc5ba-875c-4906-b991-990304329bf3 at port 6004
+Getting new Coordinator reference.
+A member is being added: 801afb7b-c02c-4e1c-a420-7f8a03468e27 at port 6005
+Getting remote reference: 801afb7b-c02c-4e1c-a420-7f8a03468e27 at port 6005
+A new Peer is being designated as a Coordinator: 801afb7b-c02c-4e1c-a420-7f8a03468e27 at port 6005
+Getting remote reference: 801afb7b-c02c-4e1c-a420-7f8a03468e27 at port 6005
+Getting remote reference: 801afb7b-c02c-4e1c-a420-7f8a03468e27 at port 6005
+Getting new Coordinator reference.
+Getting new Coordinator reference.
+A member is being added: af981b85-3b74-445b-9d1b-364f54a120f7 at port 6006
+Getting remote reference: af981b85-3b74-445b-9d1b-364f54a120f7 at port 6006
+Getting new Coordinator reference.
+A member is being added: 5504e4a5-263b-48be-8632-6979bc9a0b2a at port 6007
+Getting remote reference: 5504e4a5-263b-48be-8632-6979bc9a0b2a at port 6007
+Getting new Coordinator reference.
+A member is being added: 6f1ac707-1cfd-4366-9cd2-1eb6dbc22a7b at port 6008
+Getting remote reference: 6f1ac707-1cfd-4366-9cd2-1eb6dbc22a7b at port 6008
+Getting new Coordinator reference.
+A member is being added: 9e03aa81-f771-4785-8d76-dadcd51d2d61 at port 6009
+Getting remote reference: 9e03aa81-f771-4785-8d76-dadcd51d2d61 at port 6009
+Getting new Coordinator reference.
+A member is being removed: 2af736fb-7dee-435a-b078-39f4c9833c53 at port 5077
+A member is being removed: b1073d0a-89ed-4d56-83d5-889d2ff93cd9 at port 5082
+A member is being removed: 5863b04f-24eb-4758-aba5-7a1b495d6b53 at port 5020
+A member is being removed: 9768b9f8-14e9-48f0-b8b6-5f65c65de2f5 at port 5045
+A member is being removed: b7f43182-94e5-47d6-8f08-5a3333926d87 at port 5030
+A member is being removed: 30e709bb-8a6d-47a7-a4b9-b7b382f18bfa at port 5049
+A member is being removed: 44a9f4ff-054c-4ca7-a01b-3ee6b4f44588 at port 5009
+A member is being removed: ddbf4dec-968d-4836-8358-4fd3575baf5e at port 5024
+Getting new Coordinator reference.
+A member is being removed: 61a74e26-67b7-48d4-acfc-170aa0ad3ae0 at port 5023
+A member is being removed: b1073d0a-89ed-4d56-83d5-889d2ff93cd9 at port 5082
+A member is being removed: 21afaaf7-58a9-421f-b8b5-0fbf8bcd5c8c at port 5007
+A member is being removed: 9a4257ae-f5b8-4539-8f6b-5ccc16a38b93 at port 5046
+A member is being removed: 3a986fd7-79f0-4b2e-9c5b-147aadbd6eb0 at port 5084
+A member is being removed: 9aa16830-bea4-4775-b986-dbb8b756c9ee at port 5055
+A member is being removed: f640aa2c-48e4-4b39-86a7-144483550494 at port 5008
+A member is being removed: dcc01cca-43f4-4823-a82b-7f2903f33f93 at port 5062
+A member is being removed: d9f49c8c-523d-41d0-88f9-c84b8337d18f at port 5031
+A member is being removed: 43236c51-1491-4252-acbc-e1579b24d0c8 at port 5072
+A member is being removed: 369a2829-4141-4402-a185-6fbc57cf21c6 at port 5086
+A member is being removed: d4aeb8f9-3ec6-4984-ad4b-87d312c488dd at port 5064
+A member is being removed: 1495dd3c-8256-472e-9785-adfed5fa5e52 at port 5044
+A member is being removed: a7510ccf-dc20-4d13-846b-cb1432e1204e at port 5089
+A member is being removed: 5e28ee69-2b32-4b32-8c1b-37c43bf0aa61 at port 5042
+A member is being removed: 11b7e617-02d5-4408-aafd-ae64b87e9dde at port 5022
+A member is being removed: 75d93e35-ca5e-4e59-9eed-5e0a6d038f46 at port 5056
+A member is being removed: b167795d-412d-4ec9-8b22-784e5b921f51 at port 5069
+A member is being removed: 0243e896-5c50-4253-b93d-53215e51e3fd at port 5039
+A member is being removed: c6f03ecc-1924-4a70-88c8-7459a574fe3b at port 5021
+A member is being removed: 9257c9e9-c8da-4ef2-8406-249a1810a106 at port 5002
+A member is being removed: 73f61894-7201-4a98-a1b5-2be6530805ca at port 5048
+A member is being removed: 2d0008cb-975f-4e4f-b802-9d8f2f6f1a90 at port 5074
+A member is being removed: a48e6f90-5d70-4747-bafe-4eafb49dfcf5 at port 5050
+A member is being removed: 09ca3a0c-fc01-4f68-9660-651aaee380aa at port 5071
+A member is being removed: a8e85f95-e1cf-4fb0-a7cc-e74216660556 at port 5065
+A member is being removed: da12d145-e415-4eb0-911a-fb78163406bc at port 5087
+A member is being removed: 3cfc6def-c7ee-4608-8db2-84ebbf208ecd at port 5004
+A member is being removed: 38485ef7-f40f-46c6-a32a-5d66df9fc463 at port 5025
+A member is being removed: 49b84465-cf47-4033-ab0d-bdc58b4c56c9 at port 5060
+A member is being removed: 862b3b1c-550f-496f-a8df-b5847d37678c at port 5085
+A member is being removed: bcf1fbe2-4264-4f3b-8e3a-0ea18d949d65 at port 5036
+A member is being removed: b3c07059-d109-48eb-af58-3af51a4cf318 at port 5034
+A member is being removed: 3555346a-5d57-448a-95d7-adcaf6ff0ecc at port 5001
+A member is being removed: 54914d32-371d-4cfd-b2d1-8d75f17a629f at port 5011
+A member is being removed: 8ef5623a-9748-4707-a887-eee0eb877ae0 at port 5053
+A member is being removed: fb6f116b-e3f7-495d-b245-8a40c871dcc2 at port 5018
+A member is being removed: da852a8c-4571-400d-8047-fcc7239e2379 at port 5051
+A member is being removed: 28fbf2c0-f2b3-47bd-9bf0-7be9a739938f at port 5028
+A member is being removed: fb31cb89-7c97-4cfc-aabb-22f4c1c232eb at port 5006
+A member is being removed: 62603f13-392c-4197-835e-f7ab09355e9e at port 5070
+A member is being removed: 0cc9e02a-3337-4194-846e-044899e17a64 at port 5038
+A member is being removed: 60b3c0cc-e295-46b4-a1f9-fe348863edfb at port 5066
+A member is being removed: 9ddbd39d-d6ae-465d-a8dc-80e902fcf3a6 at port 5014
+A member is being removed: 217ff87c-fe85-4b1a-9adb-ff3c41af14ef at port 5083
+A member is being removed: 0670ab3a-2a52-4bfd-96a0-d271c65b4adf at port 5073
+A member is being removed: e5000460-161b-40d9-8bc7-ab272667c013 at port 5047
+A member is being removed: ea4a0ba4-f993-40e1-bbe3-8233b8992e6d at port 5016
+A member is being removed: 3024c436-e5f3-4f50-9ca4-fd3895d1389b at port 5005
+A member is being removed: d6b9651b-21e7-4b1a-8449-5063b79123c4 at port 5041
+A member is being removed: e12a95c4-623a-4486-bcb2-9dd22807bf1d at port 5035
+A member is being removed: 70859369-6380-40f5-a76d-cb3e756b81b0 at port 5059
+A member is being removed: 8e0e39c1-2913-42e3-af03-f78d6ae87584 at port 5054
+A member is being removed: 6b39e698-bbfe-46f5-946e-71840c8b8758 at port 5017
+A member is being removed: a930ef18-f7a1-4051-805a-c584a400a3a6 at port 5052
+A member is being removed: cb7465fc-5a37-4793-9885-7ce2099d70ad at port 5037
+A member is being removed: 5e9e0386-87a6-4747-bd09-f17478105531 at port 5088
+A member is being removed: e2000a93-2460-4a09-a8c7-d7ef50854d76 at port 5003
+A member is being removed: dded2687-7fd7-4dde-8c7f-97c6df9f3863 at port 5029
+A member is being removed: dea96f5e-cdea-41d7-85e3-edc401bef630 at port 5058
+A member is being removed: 7fe6d4a5-d40f-46e1-83f7-a1dcd172ed73 at port 5040
+A member is being removed: 7c731d30-46b1-487f-82e0-c2540d45ac61 at port 5026
+A member is being removed: cb6ecc6e-9840-4523-b0b1-1a55140965c7 at port 5079
+A member is being removed: de924703-6cd6-4a76-a802-71b0f00e5110 at port 5067
+A member is being removed: 122fd125-40e2-43ac-9101-02fe9ba11793 at port 5012
+A member is being removed: 288106b0-cfc2-4032-8fc7-d766e7f2441a at port 5019
+A member is being removed: 6c730dc0-c800-468f-a476-bf393aaa0ff3 at port 5061
+A member is being removed: 2664e72a-dfff-4875-aefd-68d846f48242 at port 5043
+A member is being removed: 86c1d5d7-a4e7-41ab-b674-676e560007cf at port 5015
+A member is being removed: 3fbd9764-c834-43c1-9545-7b383bb9f364 at port 5013
+A member is being removed: 06d83821-3851-4f97-a4fb-212e611527a9 at port 5027
+A member is being removed: 72e2b3d6-bc2b-468d-9741-0014356f39ba at port 5081
+A member is being removed: e563cf4c-ce02-4fda-8324-0ff624114db8 at port 5075
+A member is being removed: b7a828c3-d3ef-4262-8e4d-b511bc432980 at port 5032
+A member is being removed: 7f183c75-529b-496f-bd29-ebdaf838c705 at port 5080
+A member is being removed: ec1cc752-1d8d-4520-a56c-56676c025243 at port 5010
+A member is being removed: 656eac86-e149-4af2-a8aa-414810348d52 at port 5000
+A member is being removed: 4c182701-3822-4822-8c58-6a13e5b18193 at port 5078
+A member is being removed: 47766444-2dd8-4f6e-9a62-ae73629348f6 at port 5057
+A member is being removed: 967d1cb6-e055-449e-b138-44dbe210355d at port 5063
+A member is being removed: ae6c6610-8e6a-4cf9-b61d-fafc4b2c79ba at port 5068
+A member is being removed: bf7feaaa-ab32-4962-b745-00cb258f73d8 at port 5033
+A member is being removed: ae66f000-0b57-478a-b572-b0dd3706e069 at port 5076
